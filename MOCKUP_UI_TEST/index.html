@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComfyUI img-to-img — IG LoRA</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #181b22;
+    --panel-2: #1f232c;
+    --border: #2a2f3a;
+    --text: #e7eaf0;
+    --muted: #98a0ae;
+    --accent: #6ea8fe;
+    --accent-2: #4f80e0;
+    --ok: #51cf66;
+    --err: #ff6b6b;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+  }
+  header {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .panel + .panel { margin-top: 18px; }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  textarea { min-height: 150px; }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  .dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 22px;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: rgba(110,168,254,.06); }
+  .dropzone strong { color: var(--text); }
+  .thumb { margin-top: 12px; }
+  .thumb img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .readout {
+    min-width: 46px; text-align: right; font-variant-numeric: tabular-nums;
+    font-weight: 600; color: var(--accent);
+  }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .check input { accent-color: var(--accent); width: 16px; height: 16px; }
+  button.primary {
+    width: 100%;
+    background: var(--accent-2);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, opacity .15s;
+  }
+  button.primary:hover:not(:disabled) { background: var(--accent); }
+  button.primary:disabled { opacity: .45; cursor: not-allowed; }
+  .status { margin-top: 14px; font-size: 13px; min-height: 18px; }
+  .status.ok { color: var(--ok); }
+  .status.err { color: var(--err); }
+  .status.muted { color: var(--muted); }
+  .progress {
+    margin-top: 10px; height: 8px; border-radius: 99px;
+    background: var(--panel-2); overflow: hidden; display: none;
+  }
+  .progress.show { display: block; }
+  .progress > div { height: 100%; width: 0%; background: var(--accent); transition: width .2s; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .compare { grid-template-columns: 1fr; } }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .card .cap {
+    padding: 9px 12px; font-size: 12px; font-weight: 600; color: var(--muted);
+    border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;
+  }
+  .card .imgwrap {
+    aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center;
+    background: repeating-conic-gradient(#1a1d24 0% 25%, #15181e 0% 50%) 50% / 22px 22px;
+  }
+  .card .imgwrap img { max-width: 100%; max-height: 100%; display: block; }
+  .card .imgwrap .empty { color: var(--muted); font-size: 12px; }
+  button.ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--text);
+    border-radius: 7px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+  }
+  button.ghost:hover { border-color: var(--accent); color: var(--accent); }
+  button.ghost:disabled { opacity: .4; cursor: not-allowed; }
+  .notice {
+    font-size: 12px; color: var(--muted); background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-top: 16px;
+  }
+  code { background: #000; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ComfyUI img-to-img · FLUX.2 Klein + igcflr LoRA</h1>
+  <p>Upload an image, tweak the prompt and LoRA strength, then compare input vs. output.</p>
+</header>
+
+<main>
+  <!-- LEFT: controls -->
+  <section>
+    <div class="panel">
+      <div class="field">
+        <label for="server">ComfyUI server URL</label>
+        <input type="text" id="server" value="http://127.0.0.1:8188" spellcheck="false">
+        <div class="hint">Start ComfyUI with <code>--enable-cors-header "*"</code> so this page can reach it.</div>
+      </div>
+
+      <div class="field">
+        <label>Input image</label>
+        <div class="dropzone" id="dropzone">
+          <strong>Click to choose</strong> or drag &amp; drop an image here
+          <input type="file" id="file" accept="image/*" hidden>
+        </div>
+        <div class="thumb" id="thumb"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="field">
+        <label for="prompt">Prompt</label>
+        <textarea id="prompt" spellcheck="false"></textarea>
+        <div class="hint">Keep the <code>igcflr</code> trigger word — it activates the LoRA.</div>
+      </div>
+
+      <div class="field">
+        <label for="strength">LoRA model strength · <span id="strengthOut" class="readout">1.00</span></label>
+        <div class="row">
+          <input type="range" id="strength" min="0" max="2" step="0.05" value="1">
+        </div>
+        <div class="hint">Drives <code>strength_model</code> on the LoRA loader.</div>
+      </div>
+
+      <div class="field">
+        <label class="check"><input type="checkbox" id="randseed" checked> Randomize seed each run</label>
+      </div>
+
+      <button class="primary" id="run" disabled>Generate</button>
+      <div class="progress" id="progress"><div></div></div>
+      <div class="status muted" id="status">Choose an image to begin.</div>
+    </div>
+  </section>
+
+  <!-- RIGHT: comparison -->
+  <section>
+    <div class="panel">
+      <label>Comparison</label>
+      <div class="compare">
+        <div class="card">
+          <div class="cap"><span>Input</span></div>
+          <div class="imgwrap"><span class="empty" id="inEmpty">No image yet</span><img id="inImg" hidden></div>
+        </div>
+        <div class="card">
+          <div class="cap">
+            <span>Output</span>
+            <button class="ghost" id="download" disabled>Download</button>
+          </div>
+          <div class="imgwrap"><span class="empty" id="outEmpty">Not generated yet</span><img id="outImg" hidden></div>
+        </div>
+      </div>
+      <div class="notice">
+        This page calls ComfyUI's HTTP/WebSocket API directly from your browser. Make sure the models from the
+        workflow are installed (<code>flux-2-klein-base-4b-fp8</code>, <code>qwen_3_4b_fp8_mixed</code>,
+        <code>flux2-vae</code>, <code>igcflr.safetensors</code>).
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ----------------------------------------------------------------------
+   Embedded ComfyUI workflow (API format) from
+   comphyui_workflows_apis/IG_LORA_imgtoimg.json
+   Inlined so this single file runs straight from file:// with no fetch.
+---------------------------------------------------------------------- */
+const WORKFLOW = {
+  "834": { "inputs": { "filename_prefix": "2026-06-16/20260616_163151_output", "images": ["836:759", 0] }, "class_type": "SaveImage", "_meta": { "title": "Save Image" } },
+  "837": { "inputs": { "width": 1024, "height": 1024, "upscale_method": "nearest-exact", "keep_proportion": "pad", "pad_color": "0, 0, 0", "crop_position": "center", "divisible_by": 2, "device": "cpu", "image": ["843", 0] }, "class_type": "ImageResizeKJv2", "_meta": { "title": "Resize Image v2" } },
+  "842": { "inputs": { "value": "igcflr edit the input image with the same point of view and perspective, premium hospital recovery room, luxury inpatient twin room, smooth vertical timber oak slatted paneling, seamless poured antibacterial terrazzo floor, clear glass perimeter framing, adjustable medical beds with light grey upholstery, sage green, warm bone white, honey oak brown, soft hidden indirect cove lighting, bright uniform window daylighting, clean eye-level perspective, symmetrical three-quarter view" }, "class_type": "PrimitiveStringMultiline", "_meta": { "title": "String (Multiline)" } },
+  "843": { "inputs": { "image": "7710.jpg" }, "class_type": "LoadImage", "_meta": { "title": "Load Image" } },
+  "836:755": { "inputs": { "sampler_name": "euler" }, "class_type": "KSamplerSelect", "_meta": { "title": "KSamplerSelect" } },
+  "836:756": { "inputs": { "steps": ["836:769", 0], "width": ["836:770", 0], "height": ["836:771", 0] }, "class_type": "Flux2Scheduler", "_meta": { "title": "Flux2Scheduler" } },
+  "836:757": { "inputs": { "cfg": ["836:778", 0], "model": ["836:781", 0], "positive": ["836:767:784", 0], "negative": ["836:767:782", 0] }, "class_type": "CFGGuider", "_meta": { "title": "CFGGuider" } },
+  "836:758": { "inputs": { "noise": ["836:760", 0], "guider": ["836:757", 0], "sampler": ["836:755", 0], "sigmas": ["836:756", 0], "latent_image": ["836:765", 0] }, "class_type": "SamplerCustomAdvanced", "_meta": { "title": "SamplerCustomAdvanced" } },
+  "836:759": { "inputs": { "samples": ["836:758", 0], "vae": ["836:764", 0] }, "class_type": "VAEDecode", "_meta": { "title": "VAE Decode" } },
+  "836:760": { "inputs": { "noise_seed": ["836:768", 0] }, "class_type": "RandomNoise", "_meta": { "title": "RandomNoise" } },
+  "836:761": { "inputs": { "unet_name": "flux-2-klein-base-4b-fp8.safetensors", "weight_dtype": "default" }, "class_type": "UNETLoader", "_meta": { "title": "Load Diffusion Model" } },
+  "836:762": { "inputs": { "clip_name": "qwen_3_4b_fp8_mixed.safetensors", "type": "flux2", "device": "default" }, "class_type": "CLIPLoader", "_meta": { "title": "Load CLIP" } },
+  "836:763": { "inputs": { "text": ["836:775", 0], "clip": ["836:781", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Positive Prompt)" } },
+  "836:764": { "inputs": { "vae_name": "flux2-vae.safetensors" }, "class_type": "VAELoader", "_meta": { "title": "Load VAE" } },
+  "836:765": { "inputs": { "width": ["836:770", 0], "height": ["836:771", 0], "batch_size": 1 }, "class_type": "EmptyFlux2LatentImage", "_meta": { "title": "Empty Flux 2 Latent" } },
+  "836:766": { "inputs": { "upscale_method": "nearest-exact", "megapixels": 1, "resolution_steps": 1, "image": ["837", 0] }, "class_type": "ImageScaleToTotalPixels", "_meta": { "title": "ImageScaleToTotalPixels" } },
+  "836:767:782": { "inputs": { "conditioning": ["836:777", 0], "latent": ["836:767:783", 0] }, "class_type": "ReferenceLatent", "_meta": { "title": "ReferenceLatent" } },
+  "836:767:783": { "inputs": { "pixels": ["836:766", 0], "vae": ["836:764", 0] }, "class_type": "VAEEncode", "_meta": { "title": "VAE Encode" } },
+  "836:767:784": { "inputs": { "conditioning": ["836:763", 0], "latent": ["836:767:783", 0] }, "class_type": "ReferenceLatent", "_meta": { "title": "ReferenceLatent" } },
+  "836:768": { "inputs": { "value": 343387173062126 }, "class_type": "PrimitiveInt", "_meta": { "title": "seed" } },
+  "836:769": { "inputs": { "value": 20 }, "class_type": "PrimitiveInt", "_meta": { "title": "steps" } },
+  "836:770": { "inputs": { "value": 1024 }, "class_type": "PrimitiveInt", "_meta": { "title": "width" } },
+  "836:771": { "inputs": { "value": 1024 }, "class_type": "PrimitiveInt", "_meta": { "title": "height" } },
+  "836:772": { "inputs": { "seed": ["836:768", 0], "steps": ["836:769", 0], "model": ["836:774", 0], "author": ["836:773", 0], "output_path": "[time(%Y-%m-%d)]", "file_prefix": "[time(%Y%m%d_%H%M%S)]_param", "wrap_width": 60, "font_family": "Arial", "font_size": 36, "dark_mode": false, "save_svg": true, "save_yaml": false, "prompt": ["836:775", 0], "negative_prompt": "", "additional_text": "IAAC GenAI 2026" }, "class_type": "SaveParamsSVG", "_meta": { "title": "Save Params as SVG" } },
+  "836:773": { "inputs": { "value": "Giovanni" }, "class_type": "PrimitiveString", "_meta": { "title": "author" } },
+  "836:774": { "inputs": { "value": "FLUX.2 Klein img-to-img + lora" }, "class_type": "PrimitiveString", "_meta": { "title": "model" } },
+  "836:775": { "inputs": { "prompt": ["842", 0] }, "class_type": "CR Prompt Text", "_meta": { "title": "⚙️ CR Prompt Text" } },
+  "836:776": { "inputs": { "image": ["836:766", 0] }, "class_type": "GetImageSize", "_meta": { "title": "Get Image Size" } },
+  "836:777": { "inputs": { "text": "prompt", "clip": ["836:781", 1] }, "class_type": "CLIPTextEncode", "_meta": { "title": "CLIP Text Encode (Negative Prompt)" } },
+  "836:778": { "inputs": { "value": 2 }, "class_type": "PrimitiveFloat", "_meta": { "title": "cfg" } },
+  "836:781": { "inputs": { "lora_name": "igcflr.safetensors", "strength_model": 1, "strength_clip": 1, "model": ["836:761", 0], "clip": ["836:762", 0] }, "class_type": "LoraLoader", "_meta": { "title": "Load LoRA (Model and CLIP)" } }
+};
+
+// Node IDs we touch
+const N = { LOAD_IMAGE: "843", PROMPT: "842", LORA: "836:781", SEED: "836:768", SAVE: "834" };
+
+// ---- DOM refs ----
+const $ = id => document.getElementById(id);
+const els = {
+  server: $("server"), file: $("file"), dropzone: $("dropzone"), thumb: $("thumb"),
+  prompt: $("prompt"), strength: $("strength"), strengthOut: $("strengthOut"),
+  randseed: $("randseed"), run: $("run"), progress: $("progress"),
+  status: $("status"), inImg: $("inImg"), inEmpty: $("inEmpty"),
+  outImg: $("outImg"), outEmpty: $("outEmpty"), download: $("download")
+};
+
+let selectedFile = null;
+let inputObjectURL = null;
+let lastOutputBlobURL = null;
+let lastOutputName = "output.png";
+
+// Prefill prompt from the workflow
+els.prompt.value = WORKFLOW[N.PROMPT].inputs.value;
+
+// ---- helpers ----
+function setStatus(msg, kind) {
+  els.status.textContent = msg;
+  els.status.className = "status " + (kind || "muted");
+}
+function serverBase() { return els.server.value.trim().replace(/\/+$/, ""); }
+function setProgress(pct) {
+  els.progress.classList.toggle("show", pct !== null);
+  if (pct !== null) els.progress.firstElementChild.style.width = pct + "%";
+}
+function updateRunEnabled() { els.run.disabled = !selectedFile; }
+
+// ---- strength slider ----
+els.strength.addEventListener("input", () => {
+  els.strengthOut.textContent = Number(els.strength.value).toFixed(2);
+});
+
+// ---- file selection ----
+function handleFile(file) {
+  if (!file || !file.type.startsWith("image/")) { setStatus("Please choose an image file.", "err"); return; }
+  selectedFile = file;
+  if (inputObjectURL) URL.revokeObjectURL(inputObjectURL);
+  inputObjectURL = URL.createObjectURL(file);
+  // preview thumb
+  els.thumb.innerHTML = `<img src="${inputObjectURL}" alt="input preview">`;
+  // comparison input
+  els.inImg.src = inputObjectURL; els.inImg.hidden = false; els.inEmpty.hidden = true;
+  updateRunEnabled();
+  setStatus("Ready. Click Generate.", "muted");
+}
+els.dropzone.addEventListener("click", () => els.file.click());
+els.file.addEventListener("change", e => handleFile(e.target.files[0]));
+["dragover", "dragenter"].forEach(ev => els.dropzone.addEventListener(ev, e => {
+  e.preventDefault(); els.dropzone.classList.add("drag");
+}));
+["dragleave", "drop"].forEach(ev => els.dropzone.addEventListener(ev, e => {
+  e.preventDefault(); els.dropzone.classList.remove("drag");
+}));
+els.dropzone.addEventListener("drop", e => { if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+// ---- ComfyUI API ----
+async function uploadImage(file) {
+  const fd = new FormData();
+  fd.append("image", file, file.name);
+  fd.append("overwrite", "true");
+  const res = await fetch(serverBase() + "/upload/image", { method: "POST", body: fd });
+  if (!res.ok) throw new Error("Upload failed (" + res.status + ")");
+  const data = await res.json();
+  return data.subfolder ? `${data.subfolder}/${data.name}` : data.name;
+}
+
+function buildGraph(imageRef) {
+  const g = structuredClone(WORKFLOW);
+  g[N.LOAD_IMAGE].inputs.image = imageRef;
+  g[N.PROMPT].inputs.value = els.prompt.value;
+  g[N.LORA].inputs.strength_model = Number(els.strength.value);
+  if (els.randseed.checked) {
+    g[N.SEED].inputs.value = Math.floor(Math.random() * 9_000_000_000_000_000);
+  }
+  return g;
+}
+
+async function queuePrompt(graph, clientId) {
+  const res = await fetch(serverBase() + "/prompt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: graph, client_id: clientId })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const detail = data.error ? (data.error.message || JSON.stringify(data.error)) : ("HTTP " + res.status);
+    throw new Error("Queue rejected: " + detail);
+  }
+  return data.prompt_id;
+}
+
+// Wait for completion via WebSocket, with history polling as fallback.
+function waitForCompletion(promptId, clientId) {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = fn => { if (!settled) { settled = true; fn(); } };
+    const base = serverBase();
+    const wsUrl = base.replace(/^http/, "ws") + "/ws?clientId=" + clientId;
+    let ws;
+    try { ws = new WebSocket(wsUrl); } catch (e) { ws = null; }
+
+    const poll = setInterval(async () => {
+      try {
+        const r = await fetch(base + "/history/" + promptId);
+        if (r.ok) {
+          const h = await r.json();
+          if (h[promptId]) { clearInterval(poll); if (ws) try { ws.close(); } catch (e) {} finish(() => resolve(h[promptId])); }
+        }
+      } catch (e) { /* keep polling */ }
+    }, 1200);
+
+    if (ws) {
+      ws.addEventListener("message", ev => {
+        if (typeof ev.data !== "string") return;
+        let m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.type === "progress" && m.data && m.data.max) {
+          setProgress(Math.round((m.data.value / m.data.max) * 100));
+        } else if (m.type === "executing" && m.data && m.data.node === null && m.data.prompt_id === promptId) {
+          clearInterval(poll);
+          try { ws.close(); } catch (e) {}
+          fetch(base + "/history/" + promptId).then(r => r.json())
+            .then(h => finish(() => resolve(h[promptId])))
+            .catch(err => finish(() => reject(err)));
+        }
+      });
+      ws.addEventListener("error", () => { /* fallback to polling */ });
+    }
+
+    setTimeout(() => { clearInterval(poll); if (ws) try { ws.close(); } catch (e) {} finish(() => reject(new Error("Timed out waiting for result."))); }, 600000);
+  });
+}
+
+function findOutputImage(history) {
+  const outputs = history && history.outputs;
+  if (!outputs) return null;
+  const save = outputs[N.SAVE];
+  let imgs = save && save.images;
+  if (!imgs || !imgs.length) { // fall back to any node that produced images
+    for (const k in outputs) if (outputs[k].images && outputs[k].images.length) { imgs = outputs[k].images; break; }
+  }
+  return imgs && imgs.length ? imgs[0] : null;
+}
+
+async function showOutput(imgInfo) {
+  const url = serverBase() + "/view?filename=" + encodeURIComponent(imgInfo.filename) +
+              "&subfolder=" + encodeURIComponent(imgInfo.subfolder || "") +
+              "&type=" + encodeURIComponent(imgInfo.type || "output");
+  // fetch as blob so the Download button works cross-origin with a real filename
+  const res = await fetch(url);
+  const blob = await res.blob();
+  if (lastOutputBlobURL) URL.revokeObjectURL(lastOutputBlobURL);
+  lastOutputBlobURL = URL.createObjectURL(blob);
+  lastOutputName = imgInfo.filename || "output.png";
+  els.outImg.src = lastOutputBlobURL; els.outImg.hidden = false; els.outEmpty.hidden = true;
+  els.download.disabled = false;
+}
+
+// ---- download ----
+els.download.addEventListener("click", () => {
+  if (!lastOutputBlobURL) return;
+  const a = document.createElement("a");
+  a.href = lastOutputBlobURL;
+  a.download = lastOutputName;
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+// ---- main run ----
+els.run.addEventListener("click", async () => {
+  if (!selectedFile) return;
+  els.run.disabled = true;
+  els.download.disabled = true;
+  setProgress(0);
+  try {
+    setStatus("Uploading image…", "muted");
+    const imageRef = await uploadImage(selectedFile);
+
+    setStatus("Queuing workflow…", "muted");
+    const clientId = (crypto.randomUUID && crypto.randomUUID()) || String(Math.random()).slice(2);
+    const graph = buildGraph(imageRef);
+    const promptId = await queuePrompt(graph, clientId);
+
+    setStatus("Generating… this can take a while.", "muted");
+    const history = await waitForCompletion(promptId, clientId);
+
+    const imgInfo = findOutputImage(history);
+    if (!imgInfo) throw new Error("No output image found in result.");
+    setStatus("Fetching result…", "muted");
+    await showOutput(imgInfo);
+
+    setProgress(100);
+    setStatus("Done.", "ok");
+  } catch (err) {
+    console.error(err);
+    let msg = err.message || String(err);
+    if (msg === "Failed to fetch") msg = "Can't reach the server. Check the URL and that ComfyUI runs with --enable-cors-header \"*\".";
+    setStatus("Error: " + msg, "err");
+  } finally {
+    setTimeout(() => setProgress(null), 800);
+    els.run.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
