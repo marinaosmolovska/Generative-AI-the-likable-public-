@@ -771,6 +771,42 @@ body {
 }
 
 /* ── AI GENERATION TOOL ─────────────────────────────── */
+.likes-ctrl {
+  margin: 10px 0 8px;
+}
+.likes-ctrl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.likes-ctrl-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+}
+.likes-ctrl-val {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--reg-ink);
+}
+.likes-ctrl input[type="range"] {
+  width: 100%;
+  accent-color: var(--reg-ink);
+  cursor: pointer;
+}
+.likes-ctrl-ends {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--reg-soft);
+  margin-top: 3px;
+  opacity: 0.7;
+}
+
 .gen-tabs {
   display: flex;
   gap: 5px;

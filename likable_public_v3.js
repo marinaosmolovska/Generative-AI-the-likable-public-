@@ -424,7 +424,7 @@ function applyCompareSlider(thumb, beforeSrc, afterSrc, cardName) {
   function setPos(p) {
     pct = Math.min(98, Math.max(2, p));
     divider.style.left = pct + '%';
-    afterEl.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+    afterEl.style.clipPath = `inset(0 0 0 ${pct}%)`;
   }
   setPos(50);
 
