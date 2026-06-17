@@ -895,6 +895,6 @@ body {
   background: #cac7bf;
 }
 .card:not(.warm) .thumb-img.loaded {
-  opacity: 0.55;
-  filter: saturate(0.55) brightness(0.92);
+  opacity: 0.89;
+  filter: saturate(0.89) brightness(0.98);
 }
