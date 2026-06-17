@@ -115,10 +115,12 @@ body {
   min-width: 0;
   position: relative;
   overflow: hidden;
-  background: var(--bg-grad);
+  background-color: #c9c6be;
+  background-image: radial-gradient(circle, rgba(50,46,38,0.22) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: 0 0;
   cursor: grab;
   touch-action: none;
-  transition: background 0.9s ease;
 }
 
 .canvas.dragging { cursor: grabbing; }
@@ -292,6 +294,13 @@ body {
 
 /* Generated cards are always fully visible */
 .card.generated { opacity: 1 !important; filter: saturate(1) !important; }
+
+/* Left canvas: image library — no likes display */
+#leftCanvas .card .crow { display: none; }
+#leftCanvas .card .cn   { padding-bottom: 9px; }
+
+/* Left canvas cards: show a subtle "click to use" cue on hover */
+#leftCanvas .card:hover { outline: 1.5px solid rgba(180,86,58,0.5); }
 
 /* Tap animations */
 .card.pulse { animation: cardPulse 0.5s ease; }
