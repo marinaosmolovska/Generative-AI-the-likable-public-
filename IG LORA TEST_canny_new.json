@@ -63,7 +63,7 @@
   },
   "946": {
     "inputs": {
-      "filename_prefix": "2026-06-17/20260617_172601_canny",
+      "filename_prefix": "2026-06-17/20260617_173151_canny",
       "images": [
         "950:105",
         0
@@ -76,31 +76,11 @@
   },
   "947": {
     "inputs": {
-      "filename_prefix": "2026-06-17/20260617_172601_output",
-      "images": [
-        "950:91",
-        0
-      ]
+      "filename_prefix": "2026-06-17/20260617_173151_output"
     },
     "class_type": "SaveImage",
     "_meta": {
       "title": "Save Image"
-    }
-  },
-  "950:91": {
-    "inputs": {
-      "samples": [
-        "950:109",
-        0
-      ],
-      "vae": [
-        "950:94",
-        0
-      ]
-    },
-    "class_type": "VAEDecode",
-    "_meta": {
-      "title": "VAE Decode"
     }
   },
   "950:96": {
@@ -258,7 +238,7 @@
   },
   "950:833": {
     "inputs": {
-      "value": -873995120956242
+      "value": -162158298323898
     },
     "class_type": "PrimitiveInt",
     "_meta": {
@@ -627,7 +607,7 @@
   },
   "952:353": {
     "inputs": {
-      "value": 927557662338940
+      "value": -628112986509551
     },
     "class_type": "PrimitiveInt",
     "_meta": {
@@ -636,7 +616,7 @@
   },
   "952:354": {
     "inputs": {
-      "value": 30
+      "value": 15
     },
     "class_type": "PrimitiveInt",
     "_meta": {
