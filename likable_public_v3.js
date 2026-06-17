@@ -19,6 +19,16 @@ const CHIPS = [
   { text: "linoleum floor",   warm: false }
 ];
 
+// Curated style prompts (from txt_to_text_style_prompt.json, list-index order)
+const STYLES = [
+  { name: "Industrial Loft",      prompt: "industrial loft style, raw warehouse adaptive reuse, vertical walnut wood paneling, raw cast concrete pillars, polished concrete floor, double-height spatial volume, exposed structural columns, raw industrial concrete grey, historic terra-cotta brick red, matte charcoal black, sharp high-contrast lateral sunlight, warm golden spotlight cones, architectural showroom setting, dramatic high-angle deep perspective view" },
+  { name: "Japandi",              prompt: "minimalist scandinavian design, japandi aesthetic, pale birch wood blonde, timber slat paneling, micro-cement walls, straight linear alignments, minimalist built-in profiles, alabaster white, clean sand beige, warm muted ivory, soft uniform overhead panel light, diffuse shadowless daytime ambience, airy interior layout, straight-on balanced perspective shot" },
+  { name: "Mid-Century Modern",   prompt: "vintage mid-century modern style, nostalgic retro 1960s, vertical wood slat wainscoting, parquet timber flooring, rough matte stucco, vinyl leather upholstery, coffered square ceiling grid, repeating vertical lines, deep midnight blue, golden oak brown, olive green, chocolate brown, sharp high-contrast lateral sunlight, glowing spherical pendant globes, boutique hospitality lounge, standard interior perspective" },
+  { name: "Avant-Garde Boutique", prompt: "avant-garde contemporary design boutique, post-modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art-gallery layout, clean one-point perspective view looking down the vaulted centerline axis" },
+  { name: "Pop Graphic",          prompt: "contemporary pop graphic layout, bold high-contrast interior, glossy square subway ceramic tiles, classic checkered marble floor, fluted velvet facing, strict uniform square tile grid matrix, grand sweeping wall arches, deep cobalt blue, emerald green, deep navy blue, pure bone white, bright golden chandelier glow, focused white directional spotlight lines, high-concept boutique venue, standard wide-angle interior perspective" },
+  { name: "Organic Mediterranean",prompt: "organic mediterranean biophilic wellness aesthetic, sculptural cavernous design, monolithic textured stucco finish, smooth limestone floor, soft matte micro-cement, rhythmic structural barrel vault arches, pill-shaped recessed wall niches, warm oatmeal beige, dusty sage green, muted terracotta orange, soft peach beige, uniform hidden back wall wash lighting, low-intensity warm point lamps, sculptural high-design sanctuary, clean front elevation perspective" }
+];
+
 const UNTOUCHED = [
   { name: "Stairwell · Block C",       desc: "Used 2,300 times last month. No natural light.", likes: 7 },
   { name: "Service corridor · Level 2", desc: "Serves 14 departments. Never photographed.",    likes: 2 },
@@ -324,6 +334,24 @@ document.getElementById('loraSlider').addEventListener('input', function () {
   });
 
   lCards.forEach(c => { c.style.opacity = 1 - v * 0.4; });
+});
+
+// ── Style picker (populated by JS) ────────────────────────────────────────────
+const capStylesEl = document.getElementById('capStyles');
+
+STYLES.forEach(({ name, prompt }) => {
+  const btn = document.createElement('span');
+  btn.className = 'style-btn';
+  btn.textContent = name;
+  btn.addEventListener('click', () => {
+    const wasActive = btn.classList.contains('used');
+    capStylesEl.querySelectorAll('.style-btn').forEach(b => b.classList.remove('used'));
+    if (!wasActive) {
+      btn.classList.add('used');
+      document.getElementById('genPromptText').value = prompt;
+    }
+  });
+  capStylesEl.appendChild(btn);
 });
 
 // ── Chips (populated by JS) ───────────────────────────────────────────────────
