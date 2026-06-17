@@ -888,3 +888,13 @@ body {
 }
 
 .card .thumb-img.loaded { opacity: 1; }
+
+/* Left canvas: normal interior photos — contained, muted */
+.card:not(.warm) .thumb-img {
+  object-fit: contain;
+  background: #cac7bf;
+}
+.card:not(.warm) .thumb-img.loaded {
+  opacity: 0.55;
+  filter: saturate(0.55) brightness(0.92);
+}

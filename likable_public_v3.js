@@ -19,6 +19,34 @@ const CHIPS = [
   { text: "linoleum floor",   warm: false }
 ];
 
+const NORMAL_INTERIORS = [
+  'img dataset/normal interiors/02.jpg',
+  'img dataset/normal interiors/0d6c196967485ad18ad08f06f8847b3f.jpg',
+  'img dataset/normal interiors/1000s.jpg',
+  'img dataset/normal interiors/15617182942_e0bce79ec2_b.jpg',
+  'img dataset/normal interiors/637965237088630000.jpeg',
+  'img dataset/normal interiors/MOUPBOO4BVDGDJF2O3OOZAJ3ZA.jpg',
+  'img dataset/normal interiors/Uni_Wien_Hallway,_Vienna.jpg',
+  'img dataset/normal interiors/dsc01912.jpg',
+  'img dataset/normal interiors/hospital1.jpg',
+  'img dataset/normal interiors/hospital2.png',
+  'img dataset/normal interiors/images (6).jpeg',
+  'img dataset/normal interiors/images (7).jpeg',
+  'img dataset/normal interiors/images (8).jpeg',
+  'img dataset/normal interiors/istockphoto-1053083052-612x612.jpg',
+  'img dataset/normal interiors/office1.png',
+  'img dataset/normal interiors/office2.png',
+  'img dataset/normal interiors/office3.jpg',
+  'img dataset/normal interiors/pexels-photo-18344348.avif',
+  'img dataset/normal interiors/reception1.png',
+  'img dataset/normal interiors/reception2.png',
+  'img dataset/normal interiors/reception3.png',
+  'img dataset/normal interiors/sala-de-espera-hospital.png',
+  'img dataset/normal interiors/waitingroom1.png',
+  'img dataset/normal interiors/waitingroom2.png',
+  'img dataset/normal interiors/waitingroom3.png',
+];
+
 
 const HONEST    = "The waiting room was never designed for the person waiting. It was designed against waiting — against the body that does it: chairs bolted to the floor, a clock set just out of comfortable view, lighting tuned to discourage anyone from staying.";
 const PERFORMED = "A civic waiting room is an opportunity to design toward something more than function. These are the spaces where people find themselves between things — a moment that, handled with care, can be genuinely restorative. The right material palette, the right quality of light, the right seat that doesn't announce itself as institutional: these are not luxuries. They are the difference between a room that works and a room that works beautifully.";
@@ -84,6 +112,12 @@ function buildCard(data, side) {
   `;
 
   if (isRight) div.classList.add('warm');
+
+  if (!isRight) {
+    const imgEl = div.querySelector('.thumb-img');
+    imgEl.src = NORMAL_INTERIORS[data.idx % NORMAL_INTERIORS.length];
+    imgEl.addEventListener('load', () => imgEl.classList.add('loaded'));
+  }
 
   div.addEventListener('click', () => {
     if (isRight ? rDragging : lDragging) return;
