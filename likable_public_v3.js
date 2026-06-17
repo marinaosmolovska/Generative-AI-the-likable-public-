@@ -28,6 +28,39 @@ const STYLES = [
   { name: "Organic Mediterranean", prompt: "organic mediterranean biophilic wellness aesthetic, sculptural cavernous design, monolithic textured stucco finish, smooth limestone floor, soft matte micro-cement, rhythmic structural barrel vault arches, pill-shaped recessed wall niches, warm oatmeal beige, dusty sage green, muted terracotta orange, soft peach beige, uniform hidden back wall wash lighting, low-intensity warm point lamps, sculptural high-design sanctuary, clean front elevation perspective" }
 ];
 
+const LORA_DATASET = [
+  'img dataset/lora dataset/IG_CAFE_LORA_01.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_02.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_03.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_04.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_05.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_06.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_07.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_08.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_09.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_10.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_11.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_12.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_13.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_14.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_15.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_16.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_17.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_18.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_19.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_20.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_21.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_22.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_23.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_24.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_25.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_26.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_27.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_28.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_29.png',
+  'img dataset/lora dataset/IG_CAFE_LORA_30.png',
+];
+
 const NORMAL_INTERIORS = [
   'img dataset/normal interiors/02.jpg',
   'img dataset/normal interiors/0d6c196967485ad18ad08f06f8847b3f.jpg',
@@ -126,6 +159,10 @@ function buildCard(data, side) {
     const imgEl = div.querySelector('.thumb-img');
     imgEl.src = NORMAL_INTERIORS[data.idx % NORMAL_INTERIORS.length];
     imgEl.addEventListener('load', () => imgEl.classList.add('loaded'));
+  } else {
+    const imgEl = div.querySelector('.thumb-img');
+    imgEl.src = LORA_DATASET[data.idx % LORA_DATASET.length];
+    imgEl.addEventListener('load', () => imgEl.classList.add('loaded'));
   }
 
   div.addEventListener('click', () => {
@@ -159,8 +196,12 @@ function buildCard(data, side) {
           .catch(() => {});
       }
     } else {
+      // ── Right card: focus to full opacity until canvas background click ──
+      document.querySelectorAll('#rightCanvas .card.focused')
+        .forEach(c => { if (c !== div) c.classList.remove('focused'); });
+      div.classList.toggle('focused');
+
       // ── Right card: set as generation TARGET ──
-      refitPair(data.idx);
       _genTargetIdx = data.idx;
       document.getElementById('genHint').textContent =
         `target: ${data.name} · right canvas card #${data.idx + 1}`;
@@ -257,6 +298,13 @@ function setupCanvas(colEl, isLeft) {
 
 setupCanvas(document.getElementById('leftCanvas'),  true);
 setupCanvas(document.getElementById('rightCanvas'), false);
+
+document.getElementById('rightCanvas').addEventListener('click', e => {
+  if (!e.target.closest('.card')) {
+    document.querySelectorAll('#rightCanvas .card.focused')
+      .forEach(c => c.classList.remove('focused'));
+  }
+});
 
 // ── Focus system (disabled — canvases are stable, not essay-driven) ───────────
 function setFocus(_cluster) { /* canvases scroll independently; no auto-pan */ }
@@ -565,13 +613,37 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
       lCard.classList.add('generated');
     }
 
-    // ── Right canvas card: clean output image only (library) ──
-    const rImg = rCard.querySelector('.thumb-img');
-    if (rImg) { rImg.onload = () => rImg.classList.add('loaded'); rImg.src = url; }
-    rCard.classList.add('generated', 'warm');
+    // ── Right canvas: insert new generated card before target, keep dataset image intact ──
+    const genCard = document.createElement('div');
+    genCard.className = 'card generated warm';
+    genCard.dataset.idx     = idx;
+    genCard.dataset.cluster = data.cluster;
+    genCard.innerHTML = `
+      <div class="thumb">
+        <div class="wall"></div><div class="floor"></div><div class="fix"></div><div class="lamp"></div>
+        <div class="plant">🪴</div>
+        <img class="thumb-img" alt="">
+      </div>
+      <div class="cn">${data.name}</div>
+      <div class="crow">
+        <div class="lk">
+          <span class="cnum">${rCurrentLikes[idx].toLocaleString()}</span>
+          <span class="ck">likes</span>
+        </div>
+        <span class="hk">♥</span>
+      </div>
+    `;
+    const genImg = genCard.querySelector('.thumb-img');
+    genImg.addEventListener('load', () => genImg.classList.add('loaded'));
+    genImg.src = url;
+    const likesFrom = rCurrentLikes[idx];
+    const likesTo   = tileData[idx].after;
 
-    // Animate likes to reflect LoRA result
+    document.getElementById('rightInner').insertBefore(genCard, rCard);
+
+    // Animate likes on original card + new generated card
     refitPair(idx);
+    animateLikes(genCard, likesFrom, likesTo, 900);
 
     // Auto-score the generated result in the Instagram post frame
     try {

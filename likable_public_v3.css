@@ -174,7 +174,7 @@ body {
   transform-origin: 0 0;
   will-change: transform;
   display: grid;
-  grid-template-columns: repeat(3, 180px);
+  grid-template-columns: repeat(4, 180px);
   gap: 8px;
   padding: 12px;
   opacity: 1;
@@ -296,7 +296,12 @@ body {
 .card.generated { opacity: 1 !important; filter: saturate(1) !important; }
 
 /* Left canvas: image library — more visible, no likes display */
-#leftCanvas .card { opacity: 0.58; filter: saturate(0.58); }
+#leftCanvas .card { opacity: 0.28; filter: saturate(0.28); }
+
+/* Right canvas: slightly more visible than left, hot cards stay bright */
+#rightCanvas .card          { opacity: 0.38; filter: saturate(0.38); }
+#rightCanvas .card.hot      { opacity: 0.68; filter: saturate(0.8); }
+#rightCanvas .card.focused  { opacity: 1;    filter: saturate(1);   transition: opacity 0.2s ease, filter 0.2s ease; }
 #leftCanvas .card .crow { display: none; }
 #leftCanvas .card .cn   { padding-bottom: 9px; }
 
@@ -539,6 +544,26 @@ body {
 }
 .live-readout b { color: var(--reg-ink); font-weight: 700; }
 
+/* References */
+.ess-refs {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px 0 16px;
+  margin-top: 16px;
+}
+.ess-refs a {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.ess-refs a:hover { color: var(--reg-ink); }
+
 /* ── INLINE TOOLS ───────────────────────────────────── */
 .tool {
   border: none;
@@ -621,7 +646,7 @@ body {
 }
 
 /* Chips */
-.tool .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.tool .chips { display: contents; }
 
 .tool .chip {
   font-family: var(--mono);
@@ -654,8 +679,8 @@ body {
 }
 .tool .building:focus { outline: none; border-color: var(--terra); }
 
-/* Style picker */
-.tool .styles { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+/* Unified button group: style presets + chips flow together */
+.tool .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 
 .tool .style-btn {
   font-family: var(--mono);
@@ -972,11 +997,11 @@ body {
 .card .thumb-img.loaded { opacity: 1; }
 
 /* Left canvas: normal interior photos — contained, muted */
-.card:not(.warm) .thumb-img {
+#leftCanvas .card .thumb-img {
   object-fit: contain;
   background: #cac7bf;
 }
-.card:not(.warm) .thumb-img.loaded {
+#leftCanvas .card .thumb-img.loaded {
   opacity: 1;
   filter: none;
 }

@@ -75,8 +75,10 @@
           <div class="tool" id="toolCaption">
             <div class="th"><span class="t">Describe the room — or pick a style</span><span class="v" id="capCount">0 reframed</span></div>
             <input type="text" id="capBuilding" class="building" placeholder="building typology — e.g. public waiting room" value="public waiting room">
-            <div class="styles" id="capStyles"></div>
-            <div class="chips" id="capChips"></div>
+            <div class="btn-group">
+              <div id="capStyles" style="display:contents"></div>
+              <div id="capChips" style="display:contents"></div>
+            </div>
             <textarea id="capText">public waiting room,</textarea>
             <div class="applyrow">
               <span class="hintsm">The right canvas reframes around rooms matching the description. The left stays untouched.</span>
@@ -113,7 +115,7 @@
               <div class="gen-bar" id="genBar" style="width:0%"></div>
             </div>
             <div class="applyrow">
-              <span class="hintsm" id="genHint">result replaces the next card in the right canvas</span>
+              <span class="hintsm" id="genHint">result will be added to the right canvas</span>
               <button class="apply" id="genBtn">generate →</button>
             </div>
           </div>
@@ -203,6 +205,12 @@
             <p>So: the corpus you have been reading through. Forty-nine civic rooms, most of them mid-performance, a few still holding out, one fire extinguisher that will not move. The likes go up either way.</p>
             <p class="live-readout"><b id="roomsRefitted">0</b> rooms refitted out of 49 · <b id="likesMinted">0</b> likes minted this session</p>
           </section>
+
+          <div class="ess-refs">
+            <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2018.01050/full#s4" target="_blank" rel="noopener">reference</a>
+            <a href="https://parametric-architecture.com/architecture-in-the-age-of-instagram/?srsltid=AfmBOoroTRC_R87TNJQBmL-D0pE-bodTIDngcDorbRLkkLtyOTwOscBv" target="_blank" rel="noopener">reference</a>
+            <a href="https://parametric-architecture.com/architecture-in-the-age-of-instagram/?srsltid=AfmBOoroTRC_R87TNJQBmL-D0pE-bodTIDngcDorbRLkkLtyOTwOscBv" target="_blank" rel="noopener">reference</a>
+          </div>
 
         </div>
       </div>
