@@ -1,0 +1,428 @@
+{
+  "805": {
+    "inputs": {
+      "filename_prefix": "2026-06-17/20260617_031951_output",
+      "images": [
+        "817:759",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "833": {
+    "inputs": {
+      "value": "igcflr architectural interior photography of a contemporary hotel hall, avant garde contemporary design boutique, post modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art gallery layout"
+    },
+    "class_type": "PrimitiveStringMultiline",
+    "_meta": {
+      "title": "String (Multiline)"
+    }
+  },
+  "834": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1,
+      "color": 0
+    },
+    "class_type": "EmptyImage",
+    "_meta": {
+      "title": "EmptyImage"
+    }
+  },
+  "817:755": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "817:756": {
+    "inputs": {
+      "steps": [
+        "817:769",
+        0
+      ],
+      "width": [
+        "817:770",
+        0
+      ],
+      "height": [
+        "817:771",
+        0
+      ]
+    },
+    "class_type": "Flux2Scheduler",
+    "_meta": {
+      "title": "Flux2Scheduler"
+    }
+  },
+  "817:757": {
+    "inputs": {
+      "cfg": [
+        "817:778",
+        0
+      ],
+      "model": [
+        "817:781",
+        0
+      ],
+      "positive": [
+        "817:767:784",
+        0
+      ],
+      "negative": [
+        "817:767:782",
+        0
+      ]
+    },
+    "class_type": "CFGGuider",
+    "_meta": {
+      "title": "CFGGuider"
+    }
+  },
+  "817:758": {
+    "inputs": {
+      "noise": [
+        "817:760",
+        0
+      ],
+      "guider": [
+        "817:757",
+        0
+      ],
+      "sampler": [
+        "817:755",
+        0
+      ],
+      "sigmas": [
+        "817:756",
+        0
+      ],
+      "latent_image": [
+        "817:765",
+        0
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "817:759": {
+    "inputs": {
+      "samples": [
+        "817:758",
+        0
+      ],
+      "vae": [
+        "817:764",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "817:760": {
+    "inputs": {
+      "noise_seed": [
+        "817:768",
+        0
+      ]
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  },
+  "817:761": {
+    "inputs": {
+      "unet_name": "flux-2-klein-base-4b-fp8.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "817:762": {
+    "inputs": {
+      "clip_name": "qwen_3_4b_fp8_mixed.safetensors",
+      "type": "flux2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "Load CLIP"
+    }
+  },
+  "817:763": {
+    "inputs": {
+      "text": [
+        "817:775",
+        0
+      ],
+      "clip": [
+        "817:781",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "817:764": {
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "817:765": {
+    "inputs": {
+      "width": [
+        "817:770",
+        0
+      ],
+      "height": [
+        "817:771",
+        0
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyFlux2LatentImage",
+    "_meta": {
+      "title": "Empty Flux 2 Latent"
+    }
+  },
+  "817:766": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "megapixels": 1,
+      "resolution_steps": 1,
+      "image": [
+        "834",
+        0
+      ]
+    },
+    "class_type": "ImageScaleToTotalPixels",
+    "_meta": {
+      "title": "ImageScaleToTotalPixels"
+    }
+  },
+  "817:767:782": {
+    "inputs": {
+      "conditioning": [
+        "817:777",
+        0
+      ],
+      "latent": [
+        "817:767:783",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "ReferenceLatent"
+    }
+  },
+  "817:767:783": {
+    "inputs": {
+      "pixels": [
+        "817:766",
+        0
+      ],
+      "vae": [
+        "817:764",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "817:767:784": {
+    "inputs": {
+      "conditioning": [
+        "817:763",
+        0
+      ],
+      "latent": [
+        "817:767:783",
+        0
+      ]
+    },
+    "class_type": "ReferenceLatent",
+    "_meta": {
+      "title": "ReferenceLatent"
+    }
+  },
+  "817:768": {
+    "inputs": {
+      "value": 1094320641351711
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "seed"
+    }
+  },
+  "817:769": {
+    "inputs": {
+      "value": 15
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "steps"
+    }
+  },
+  "817:770": {
+    "inputs": {
+      "value": 1024
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "width"
+    }
+  },
+  "817:771": {
+    "inputs": {
+      "value": 1024
+    },
+    "class_type": "PrimitiveInt",
+    "_meta": {
+      "title": "height"
+    }
+  },
+  "817:772": {
+    "inputs": {
+      "seed": [
+        "817:768",
+        0
+      ],
+      "steps": [
+        "817:769",
+        0
+      ],
+      "model": [
+        "817:774",
+        0
+      ],
+      "author": [
+        "817:773",
+        0
+      ],
+      "output_path": "[time(%Y-%m-%d)]",
+      "file_prefix": "[time(%Y%m%d_%H%M%S)]_param",
+      "wrap_width": 60,
+      "font_family": "Arial",
+      "font_size": 36,
+      "dark_mode": false,
+      "save_svg": true,
+      "save_yaml": false,
+      "prompt": [
+        "817:775",
+        0
+      ],
+      "negative_prompt": "",
+      "additional_text": "IAAC GenAI 2026"
+    },
+    "class_type": "SaveParamsSVG",
+    "_meta": {
+      "title": "Save Params as SVG"
+    }
+  },
+  "817:773": {
+    "inputs": {
+      "value": "Giovanni"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "author"
+    }
+  },
+  "817:774": {
+    "inputs": {
+      "value": "FLUX.2 Klein img-to-img + lora"
+    },
+    "class_type": "PrimitiveString",
+    "_meta": {
+      "title": "model"
+    }
+  },
+  "817:775": {
+    "inputs": {
+      "prompt": [
+        "833",
+        0
+      ]
+    },
+    "class_type": "CR Prompt Text",
+    "_meta": {
+      "title": "⚙️ CR Prompt Text"
+    }
+  },
+  "817:776": {
+    "inputs": {
+      "image": [
+        "817:766",
+        0
+      ]
+    },
+    "class_type": "GetImageSize",
+    "_meta": {
+      "title": "Get Image Size"
+    }
+  },
+  "817:777": {
+    "inputs": {
+      "text": "prompt",
+      "clip": [
+        "817:781",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "817:778": {
+    "inputs": {
+      "value": 2
+    },
+    "class_type": "PrimitiveFloat",
+    "_meta": {
+      "title": "cfg"
+    }
+  },
+  "817:781": {
+    "inputs": {
+      "lora_name": "igcflr.safetensors",
+      "strength_model": 0.4,
+      "strength_clip": 1,
+      "model": [
+        "817:761",
+        0
+      ],
+      "clip": [
+        "817:762",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA (Model and CLIP)"
+    }
+  }
+}

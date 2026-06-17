@@ -46,7 +46,9 @@ const tileData = Array.from({ length: 49 }, (_, i) => {
 // ── State ────────────────────────────────────────────────────────────────────
 let mintedTotal   = 0;
 let refittedCount = 0;
-let lOx = 12, lOy = 12, rOx = 12, rOy = 12, cScale = 1;
+// Independent pan+zoom state per canvas
+const lS = { ox: 12, oy: 12, scale: 1 };
+const rS = { ox: 12, oy: 12, scale: 1 };
 let lDragging = false, rDragging = false;
 let swappedState  = false;
 let reframedCount = 0;
@@ -89,10 +91,54 @@ function buildCard(data, side) {
   if (isRight) div.classList.add('warm');
 
   div.addEventListener('click', () => {
-    if (lDragging || rDragging) return;
+    if (isRight ? rDragging : lDragging) return;
     div.classList.add('pulse');
     div.addEventListener('animationend', () => div.classList.remove('pulse'), { once: true });
-    refitPair(data.idx);
+
+    const thumbImg = div.querySelector('.thumb-img');
+
+    if (!isRight) {
+      // ── Left card: load as generation SOURCE into essay panel ──
+      _genTargetIdx = data.idx;
+      document.getElementById('genHint').textContent =
+        `source: ${data.name} · will send to right canvas #${data.idx + 1}`;
+      if (thumbImg?.src && thumbImg.classList.contains('loaded')) {
+        fetch(thumbImg.src)
+          .then(r => r.blob())
+          .then(blob => {
+            _genFile = new File([blob], 'ref.png', { type: 'image/png' });
+            const prev = document.getElementById('genPreview');
+            prev.src = thumbImg.src;
+            prev.style.display = 'block';
+            const cw = document.getElementById('genCompareWrap');
+            cw.style.display = 'none'; cw.innerHTML = '';
+            document.getElementById('genFileName').textContent = data.name;
+            if (_genMode === 'txt2img') {
+              document.querySelector('.gen-tab[data-mode="img2img"]')?.click();
+            }
+            _genUploadWrap.style.display = 'block';
+          })
+          .catch(() => {});
+      }
+    } else {
+      // ── Right card: set as generation TARGET ──
+      refitPair(data.idx);
+      _genTargetIdx = data.idx;
+      document.getElementById('genHint').textContent =
+        `target: ${data.name} · right canvas card #${data.idx + 1}`;
+      if (thumbImg?.src && thumbImg.classList.contains('loaded')) {
+        fetch(thumbImg.src)
+          .then(r => r.blob())
+          .then(blob => {
+            _genFile = new File([blob], 'ref.png', { type: 'image/png' });
+            const prev = document.getElementById('genPreview');
+            prev.src = thumbImg.src;
+            prev.style.display = 'block';
+            document.getElementById('genFileName').textContent = data.name;
+          })
+          .catch(() => {});
+      }
+    }
   });
 
   return div;
@@ -110,11 +156,10 @@ tileData.forEach(d => {
 
 // ── Transforms ───────────────────────────────────────────────────────────────
 function applyTransforms() {
-  document.getElementById('leftInner').style.transform  = `translate(${lOx}px,${lOy}px) scale(${cScale})`;
-  document.getElementById('rightInner').style.transform = `translate(${rOx}px,${rOy}px) scale(${cScale})`;
-  const pct = Math.round(cScale * 100) + '%';
-  document.getElementById('leftZoom').textContent  = pct;
-  document.getElementById('rightZoom').textContent = pct;
+  document.getElementById('leftInner').style.transform  = `translate(${lS.ox}px,${lS.oy}px) scale(${lS.scale})`;
+  document.getElementById('rightInner').style.transform = `translate(${rS.ox}px,${rS.oy}px) scale(${rS.scale})`;
+  document.getElementById('leftZoom').textContent  = Math.round(lS.scale * 100) + '%';
+  document.getElementById('rightZoom').textContent = Math.round(rS.scale * 100) + '%';
 }
 
 applyTransforms();
@@ -130,6 +175,7 @@ function hideHints() {
 }
 
 function setupCanvas(colEl, isLeft) {
+  const S = isLeft ? lS : rS;
   let dragging  = false;
   let dragStart = { x: 0, y: 0, ox: 0, oy: 0 };
 
@@ -138,23 +184,22 @@ function setupCanvas(colEl, isLeft) {
     colEl.setPointerCapture(e.pointerId);
     dragging = true;
     colEl.classList.add('dragging');
-    if (isLeft) { lDragging = true; dragStart = { x: e.clientX, y: e.clientY, ox: lOx, oy: lOy }; }
-    else        { rDragging = true; dragStart = { x: e.clientX, y: e.clientY, ox: rOx, oy: rOy }; }
+    if (isLeft) lDragging = true; else rDragging = true;
+    dragStart = { x: e.clientX, y: e.clientY, ox: S.ox, oy: S.oy };
   });
 
   colEl.addEventListener('pointermove', e => {
     if (!dragging) return;
     hideHints();
-    if (isLeft) { lOx = dragStart.ox + (e.clientX - dragStart.x); lOy = dragStart.oy + (e.clientY - dragStart.y); }
-    else        { rOx = dragStart.ox + (e.clientX - dragStart.x); rOy = dragStart.oy + (e.clientY - dragStart.y); }
+    S.ox = dragStart.ox + (e.clientX - dragStart.x);
+    S.oy = dragStart.oy + (e.clientY - dragStart.y);
     applyTransforms();
   });
 
   colEl.addEventListener('pointerup', () => {
     dragging = false;
     colEl.classList.remove('dragging');
-    if (isLeft) lDragging = false;
-    else        rDragging = false;
+    if (isLeft) lDragging = false; else rDragging = false;
   });
 
   colEl.addEventListener('wheel', e => {
@@ -163,11 +208,11 @@ function setupCanvas(colEl, isLeft) {
     const mx       = e.clientX - rect.left;
     const my       = e.clientY - rect.top;
     const delta    = e.deltaY > 0 ? 0.9 : 1.11;
-    const newScale = Math.min(2.5, Math.max(0.25, cScale * delta));
-    const sf       = newScale / cScale;
-    if (isLeft) { lOx = mx - sf * (mx - lOx); lOy = my - sf * (my - lOy); }
-    else        { rOx = mx - sf * (mx - rOx); rOy = my - sf * (my - rOy); }
-    cScale = newScale;
+    const newScale = Math.min(2.5, Math.max(0.25, S.scale * delta));
+    const sf       = newScale / S.scale;
+    S.ox = mx - sf * (mx - S.ox);
+    S.oy = my - sf * (my - S.oy);
+    S.scale = newScale;
     applyTransforms();
   }, { passive: false });
 }
@@ -175,44 +220,8 @@ function setupCanvas(colEl, isLeft) {
 setupCanvas(document.getElementById('leftCanvas'),  true);
 setupCanvas(document.getElementById('rightCanvas'), false);
 
-// ── Focus system ──────────────────────────────────────────────────────────────
-let currentCluster = -2;
-
-function setFocus(cluster) {
-  if (cluster === currentCluster) return;
-  currentCluster = cluster;
-
-  const colL = document.getElementById('leftCanvas');
-  const colR = document.getElementById('rightCanvas');
-
-  if (cluster < 0) {
-    colL.classList.remove('guided');
-    colR.classList.remove('guided');
-    lCards.forEach(c => c.classList.remove('hot'));
-    rCards.forEach(c => c.classList.remove('hot'));
-    return;
-  }
-
-  colL.classList.add('guided');
-  colR.classList.add('guided');
-
-  lCards.forEach(c => c.classList.toggle('hot', parseInt(c.dataset.cluster) === cluster));
-  rCards.forEach(c => c.classList.toggle('hot', parseInt(c.dataset.cluster) === cluster));
-
-  // Pan to cluster centroid
-  const groupL = lCards.filter(c => parseInt(c.dataset.cluster) === cluster);
-  if (groupL.length) {
-    const cx   = groupL.reduce((s, c) => s + c.offsetLeft + c.offsetWidth  / 2, 0) / groupL.length;
-    const cy   = groupL.reduce((s, c) => s + c.offsetTop  + c.offsetHeight / 2, 0) / groupL.length;
-    const colW = colL.clientWidth;
-    const colH = colL.clientHeight;
-    lOx = colW / 2 - cx * cScale;
-    lOy = colH / 2 - cy * cScale;
-    rOx = colW / 2 - cx * cScale;
-    rOy = colH / 2 - cy * cScale;
-    applyTransforms();
-  }
-}
+// ── Focus system (disabled — canvases are stable, not essay-driven) ───────────
+function setFocus(_cluster) { /* canvases scroll independently; no auto-pan */ }
 
 // ── Counter animation ─────────────────────────────────────────────────────────
 function animateCounter(from, to, duration, onTick) {
@@ -285,25 +294,14 @@ function applyStage(stage) {
 const scrollwrap = document.getElementById('scrollwrap');
 
 function onScroll() {
-  const st  = scrollwrap.scrollTop;
-  const vh  = scrollwrap.clientHeight;
-
-  let maxStage     = 1;
-  let activeCluster = -1;
-
+  const st = scrollwrap.scrollTop;
+  const vh = scrollwrap.clientHeight;
+  let maxStage = 1;
   scrollwrap.querySelectorAll('.ess-sec[data-stage]').forEach(sec => {
-    const top    = sec.offsetTop - st;
-    const bottom = top + sec.offsetHeight;
-    if (top < vh * 0.7) {
+    if (sec.offsetTop - st < vh * 0.7)
       maxStage = Math.max(maxStage, parseInt(sec.dataset.stage));
-    }
-    if (top < vh * 0.65 && bottom > 0) {
-      activeCluster = Math.max(activeCluster, parseInt(sec.dataset.cluster));
-    }
   });
-
   applyStage(maxStage);
-  setFocus(activeCluster);
 }
 
 scrollwrap.addEventListener('scroll', onScroll);
@@ -392,9 +390,59 @@ document.getElementById('toolSwap').addEventListener('click', () => {
 });
 
 // ── AI Generation ──────────────────────────────────────────────────────────────────
-let genCardIdx = 0; // tracks which right-canvas card to fill next
+let _genTargetIdx = 0;
 
-async function generateAndDisplay({ image = null, prompt, loraStrength = 1, steps = 20 } = {}) {
+function applyCompareSlider(thumb, beforeSrc, afterSrc, cardName) {
+  // Remove any existing slider
+  const old = thumb.querySelector('.thumb-compare');
+  if (old) old.remove();
+
+  const wrap = document.createElement('div');
+  wrap.className = 'thumb-compare';
+
+  if (beforeSrc) {
+    wrap.innerHTML =
+      `<div class="tc-before"><img src="${beforeSrc}" alt="input"></div>` +
+      `<div class="tc-after"><img src="${afterSrc}" alt="output"></div>` +
+      `<div class="tc-divider"><div class="tc-handle">◁▷</div></div>` +
+      `<span class="tc-label tl">input · ${(cardName || 'civic').toLowerCase()}</span>` +
+      `<span class="tc-label tr">output · lora</span>`;
+  } else {
+    wrap.innerHTML =
+      `<div class="tc-after" style="clip-path:none"><img src="${afterSrc}" alt="output"></div>` +
+      `<span class="tc-label tr">output · lora</span>`;
+  }
+
+  thumb.appendChild(wrap);
+
+  if (!beforeSrc) return;
+
+  const divider = wrap.querySelector('.tc-divider');
+  const afterEl = wrap.querySelector('.tc-after');
+  let pct = 50;
+
+  function setPos(p) {
+    pct = Math.min(98, Math.max(2, p));
+    divider.style.left = pct + '%';
+    afterEl.style.clipPath = `inset(0 0 0 ${pct}%)`;
+  }
+  setPos(50);
+
+  let dragging = false;
+  wrap.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    dragging = true;
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const rect = wrap.getBoundingClientRect();
+    setPos(((e.clientX - rect.left) / rect.width) * 100);
+  });
+  wrap.addEventListener('pointerup', () => { dragging = false; });
+}
+
+async function generateAndDisplay({ image = null, prompt, loraStrength = 1, steps = 20, targetIdx = _genTargetIdx } = {}) {
   if (!window.ComfyBridge) { alert('ComfyBridge not loaded'); return; }
 
   const genBtn    = document.getElementById('genBtn');
@@ -407,7 +455,9 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
   genStatus.textContent = 'queuing…';
   genProg.style.display = 'block';
   genBar.style.width    = '0%';
-  genHint.textContent   = 'result replaces the next card in the right canvas';
+  genHint.textContent   = 'generating…';
+
+  const beforeSrc = image ? URL.createObjectURL(image) : null;
 
   try {
     const url = await window.ComfyBridge.generate({
@@ -418,17 +468,35 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
       }
     });
 
-    // Put generated image on the next right-canvas card
-    const target = rCards[genCardIdx % rCards.length];
-    const img    = target.querySelector('.thumb-img');
-    if (img) {
-      img.onload = () => img.classList.add('loaded');
-      img.src = url;
+    const idx    = targetIdx % rCards.length;
+    const rCard  = rCards[idx];
+    const lCard  = lCards[idx];
+    const data   = tileData[idx];
+
+    // ── Essay center: before/after slider on the main image ──
+    const compareWrap = document.getElementById('genCompareWrap');
+    document.getElementById('genPreview').style.display = 'none';
+    compareWrap.style.display = 'block';
+    applyCompareSlider(compareWrap, beforeSrc, url, data.name);
+
+    // ── Left canvas card: show the input / before image ──
+    if (beforeSrc) {
+      const lImg = lCard.querySelector('.thumb-img');
+      if (lImg) { lImg.onload = () => lImg.classList.add('loaded'); lImg.src = beforeSrc; }
+      lCard.classList.add('generated');
     }
-    genCardIdx++;
+
+    // ── Right canvas card: clean output image only (library) ──
+    const rImg = rCard.querySelector('.thumb-img');
+    if (rImg) { rImg.onload = () => rImg.classList.add('loaded'); rImg.src = url; }
+    rCard.classList.add('generated', 'warm');
+
+    // Animate likes to reflect LoRA result
+    refitPair(idx);
 
     genStatus.textContent = 'done ✓';
     genBar.style.width    = '100%';
+    genHint.textContent   = `saved · ${data.name}`;
     setTimeout(() => {
       genProg.style.display = 'none';
       genStatus.textContent = 'ready';
@@ -439,6 +507,7 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
     genHint.textContent    = err.message;
     genProg.style.display  = 'none';
     console.error('[ComfyBridge]', err);
+    if (beforeSrc) URL.revokeObjectURL(beforeSrc);
   } finally {
     genBtn.disabled = false;
   }
@@ -456,6 +525,7 @@ _genTabs.forEach(tab => {
     tab.classList.add('active');
     _genMode = tab.dataset.mode;
     _genUploadWrap.style.display = _genMode === 'txt2img' ? 'none' : 'block';
+    document.getElementById('genPromptText').style.display = _genMode === 'img2img' ? 'none' : '';
   });
 });
 
@@ -467,6 +537,10 @@ document.getElementById('genFileInput').addEventListener('change', function () {
     const prev = document.getElementById('genPreview');
     prev.src = URL.createObjectURL(_genFile);
     prev.style.display = 'block';
+    // Reset compare area so preview is visible again
+    const cw = document.getElementById('genCompareWrap');
+    cw.style.display = 'none';
+    cw.innerHTML = '';
   }
 });
 
@@ -481,7 +555,7 @@ document.getElementById('genBtn').addEventListener('click', () => {
     return;
   }
 
-  generateAndDisplay({ image, prompt, loraStrength });
+  generateAndDisplay({ image, prompt, loraStrength, targetIdx: _genTargetIdx });
 });
 
 const listEl = document.getElementById('untouchedList');
