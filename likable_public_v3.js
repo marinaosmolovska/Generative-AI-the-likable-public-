@@ -491,22 +491,34 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
     });
 
     const idx    = targetIdx % rCards.length;
-    const target = rCards[idx];
+    const rCard  = rCards[idx];
+    const lCard  = lCards[idx];
     const data   = tileData[idx];
-    const thumb  = target.querySelector('.thumb');
 
-    // Apply before/after slider in the card's thumb area
-    applyCompareSlider(thumb, beforeSrc, url, data.name);
+    // ── Essay center: before/after slider on the main image ──
+    const compareWrap = document.getElementById('genCompareWrap');
+    document.getElementById('genPreview').style.display = 'none';
+    compareWrap.style.display = 'block';
+    applyCompareSlider(compareWrap, beforeSrc, url, data.name);
 
-    // Make card fully visible and mark as generated
-    target.classList.add('generated', 'warm');
+    // ── Left canvas card: show the input / before image ──
+    if (beforeSrc) {
+      const lImg = lCard.querySelector('.thumb-img');
+      if (lImg) { lImg.onload = () => lImg.classList.add('loaded'); lImg.src = beforeSrc; }
+      lCard.classList.add('generated');
+    }
+
+    // ── Right canvas card: clean output image only (library) ──
+    const rImg = rCard.querySelector('.thumb-img');
+    if (rImg) { rImg.onload = () => rImg.classList.add('loaded'); rImg.src = url; }
+    rCard.classList.add('generated', 'warm');
 
     // Animate likes to reflect LoRA result
     refitPair(idx);
 
     genStatus.textContent = 'done ✓';
     genBar.style.width    = '100%';
-    genHint.textContent   = `saved to canvas · ${data.name}`;
+    genHint.textContent   = `saved · ${data.name}`;
     setTimeout(() => {
       genProg.style.display = 'none';
       genStatus.textContent = 'ready';
@@ -546,6 +558,10 @@ document.getElementById('genFileInput').addEventListener('change', function () {
     const prev = document.getElementById('genPreview');
     prev.src = URL.createObjectURL(_genFile);
     prev.style.display = 'block';
+    // Reset compare area so preview is visible again
+    const cw = document.getElementById('genCompareWrap');
+    cw.style.display = 'none';
+    cw.innerHTML = '';
   }
 });
 

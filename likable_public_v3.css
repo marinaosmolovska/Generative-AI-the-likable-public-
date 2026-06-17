@@ -307,6 +307,16 @@ body {
   100% { transform: translateY(0); }
 }
 
+/* ── ESSAY COMPARE WRAPPER ──────────────────────────── */
+#genCompareWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
 /* ── BEFORE / AFTER COMPARISON SLIDER ──────────────── */
 .thumb-compare {
   position: absolute;
