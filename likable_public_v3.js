@@ -19,11 +19,6 @@ const CHIPS = [
   { text: "linoleum floor",   warm: false }
 ];
 
-const UNTOUCHED = [
-  { name: "Stairwell · Block C",       desc: "Used 2,300 times last month. No natural light.", likes: 7 },
-  { name: "Service corridor · Level 2", desc: "Serves 14 departments. Never photographed.",    likes: 2 },
-  { name: "Locker room · Staff",        desc: "The only private space in the building.",        likes: 3 }
-];
 
 const HONEST    = "The waiting room was never designed for the person waiting. It was designed against waiting — against the body that does it: chairs bolted to the floor, a clock set just out of comfortable view, lighting tuned to discourage anyone from staying.";
 const PERFORMED = "A civic waiting room is an opportunity to design toward something more than function. These are the spaces where people find themselves between things — a moment that, handled with care, can be genuinely restorative. The right material palette, the right quality of light, the right seat that doesn't announce itself as institutional: these are not luxuries. They are the difference between a room that works and a room that works beautifully.";
@@ -558,24 +553,3 @@ document.getElementById('genBtn').addEventListener('click', () => {
   generateAndDisplay({ image, prompt, loraStrength, targetIdx: _genTargetIdx });
 });
 
-const listEl = document.getElementById('untouchedList');
-const thumbSVG = `<svg viewBox="0 0 52 40" xmlns="http://www.w3.org/2000/svg">
-  <rect width="52" height="40" fill="#b4aea6"/>
-  <rect y="26" width="52" height="14" fill="#827c73"/>
-  <rect x="17" y="12" width="18" height="14" fill="#676058" stroke="#4c4740" stroke-width="1"/>
-  <rect x="23" y="2" width="6" height="10" fill="#4c4740"/>
-</svg>`;
-
-UNTOUCHED.forEach(({ name, desc, likes }) => {
-  const row = document.createElement('div');
-  row.className = 'urow';
-  row.innerHTML = `
-    <div class="uthumb">${thumbSVG}</div>
-    <div class="ubody">
-      <div class="un">${name}</div>
-      <div class="ud">${desc}</div>
-    </div>
-    <div class="unum">${likes}</div>
-  `;
-  listEl.appendChild(row);
-});
