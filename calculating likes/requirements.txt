@@ -1,0 +1,16 @@
+# Core (Aesthetics Toolbox QIPs) — required
+numpy
+Pillow
+scikit-image
+scipy
+statsmodels
+
+# Streamlit UI (app.py) — required for the web interface
+streamlit
+pandas
+
+# I2PA only — optional. Omit these and run with --no-i2pa / uncheck in the UI
+# if you just want the toolbox QIPs. CPU-only is fine.
+torch
+torchvision
+scikit-learn
