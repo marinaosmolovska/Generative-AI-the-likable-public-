@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Likable Public</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="likable_public_v3.css">
+</head>
+<body>
+
+<div id="app" data-stage="1">
+
+  <div class="cols">
+
+    <!-- LEFT CANVAS (lived-in) -->
+    <div class="canvas guided" id="leftCanvas">
+      <div class="clabel in">Lived-in</div>
+      <div class="chint" id="leftHint">drag to pan · scroll to zoom</div>
+      <div class="czoom" id="leftZoom">100%</div>
+      <div class="canvas-inner" id="leftInner"></div>
+    </div>
+
+    <!-- CENTER ESSAY -->
+    <div class="center">
+      <header class="topbar">
+        <div class="tb-title"><span class="dot"></span> The Likable Public</div>
+        <div class="tb-desc">scroll the essay · the corpus flanks you</div>
+        <div class="tb-right">
+          <span class="pct">Likability <b id="pctVal">0%</b></span>
+          <span class="sep">·</span>
+          <span class="tot">Likes minted <b id="totVal">0</b></span>
+        </div>
+      </header>
+      <div class="scrollwrap" id="scrollwrap">
+        <div class="essay">
+
+          <div class="ess-lede">
+            <div class="ess-eyebrow">Essay · The Likable Public</div>
+            <h1>A space can do one of two things: it can work, or it can perform.</h1>
+            <p class="deck">On the left, the corpus as it is lived in. On the right, the same rooms learning to be looked at. Read down, and watch the difference accrue.</p>
+            <div class="byline"><span>after Han · Debord · Berger</span></div>
+          </div>
+
+          <!-- SECTION I -->
+          <section class="ess-sec" id="s1" data-stage="1" data-cluster="0">
+            <div class="ess-kale">I <span class="n">— The Question</span></div>
+            <p>Something happens to a public room when it stops being lived in and starts being looked at. It turns, very slightly, to face a camera that isn't there. The chairs angle toward a better composition; the light is chosen for how it falls in a photograph rather than on a body. The room is still a room. It has simply acquired an audience.</p>
+            <p>Which raises the question this essay hands you and asks you to carry to the bottom: <strong>who is each room for — the person standing in it, or the photo of it?</strong></p>
+            <div class="ess-pull">The smooth is the temper of the age: polished, frictionless, depthless — a surface that asks nothing of you but a Like, and offends no one by being beautiful.
+              <cite>after Byung-Chul Han, Saving Beauty</cite>
+            </div>
+            <p>Han's <em>smooth</em> is not a style. It is a social logic — a demand that everything become agreeable, that resistance be sanded away. Which is why the rooms in this essay are not ugly. <em>That</em> is the problem. They are extremely likable, and likability has its own quiet politics.</p>
+          </section>
+
+          <!-- MOMENT 1 — slider -->
+          <div class="tool" id="toolSlider">
+            <div class="tlead">Drag to watch a room stop working and start performing.</div>
+            <div class="th"><span class="t statelab" id="sliderState">lived-in</span><span class="v" id="sliderVal">0.00</span></div>
+            <div class="ends"><span>lived-in</span><span>looked-at</span></div>
+            <input type="range" id="loraSlider" min="0" max="1" step="0.01" value="0">
+            <div class="sublabel">The slider maps to LoRA strength. At 0.00 the image is unmodified; at 1.00 the room performs for a camera that isn't there.</div>
+          </div>
+
+          <!-- SECTION II -->
+          <section class="ess-sec" id="s2" data-stage="2" data-cluster="1">
+            <div class="ess-kale">II <span class="n">— The Spectacle Set in Plaster</span></div>
+            <p>Debord warned that the spectacle was never a pile of images — it was a relation between people, conducted through images. A room performing for a feed is exactly that relation, set in plaster and tile and warm indirect light.</p>
+            <p>And here is the trap. The planner who specified terrazzo did not think <em>this will look like a café</em>. They thought <em>this is the right material</em> — durable, handsome, correct. The performing room is the one in which those two thoughts have become impossible to tell apart.</p>
+          </section>
+
+          <!-- MOMENT 2 — prompt panel -->
+          <div class="tool" id="toolCaption">
+            <div class="th"><span class="t">Describe the room you want</span><span class="v" id="capCount">0 reframed</span></div>
+            <div class="chips" id="capChips"></div>
+            <textarea id="capText">public waiting room,</textarea>
+            <div class="applyrow">
+              <span class="hintsm">The right canvas reframes around rooms matching the description. The left stays untouched.</span>
+              <button class="apply" id="capApply">apply →</button>
+            </div>
+          </div>
+
+          <!-- MOMENT 2b — AI generation -->
+          <div class="tool" id="toolGenerate">
+            <div class="th"><span class="t">Generate with LoRA</span><span class="v" id="genStatus">ready</span></div>
+            <div class="gen-tabs">
+              <button class="gen-tab active" data-mode="txt2img">text → image</button>
+              <button class="gen-tab" data-mode="img2img">image → image</button>
+              <button class="gen-tab" data-mode="img+text">image + text</button>
+            </div>
+            <div id="genUploadWrap" style="display:none">
+              <label class="gen-file-label">
+                <input type="file" id="genFileInput" accept="image/*">
+                <span id="genFileName">click or drop to upload image</span>
+              </label>
+              <img id="genPreview" alt="" style="display:none;width:100%;margin-top:8px;border-radius:4px;">
+            </div>
+            <textarea id="genPromptText">public waiting room, warm lighting, terrazzo floor,</textarea>
+            <div class="gen-progress-wrap" id="genProgressWrap" style="display:none">
+              <div class="gen-bar" id="genBar" style="width:0%"></div>
+            </div>
+            <div class="applyrow">
+              <span class="hintsm" id="genHint">result replaces the next card in the right canvas</span>
+              <button class="apply" id="genBtn">generate →</button>
+            </div>
+          </div>
+
+          <!-- MOMENT 3 — clickable paragraph -->
+          <div class="tool swap" id="toolSwap">
+            <div class="tlead">Click the paragraph — watch the writing perform.</div>
+            <div class="swap-label"><span class="pip"></span><span id="swapVer">honest</span></div>
+            <div class="swap-text" id="swapText">The waiting room was never designed for the person waiting. It was designed against waiting — against the body that does it: chairs bolted to the floor, a clock set just out of comfortable view, lighting tuned to discourage anyone from staying.</div>
+            <div class="swap-foot" id="swapFoot">click to overwrite with performed copy</div>
+          </div>
+
+          <!-- SECTION III -->
+          <section class="ess-sec" id="s3" data-stage="3" data-cluster="2">
+            <div class="ess-kale">III <span class="n">— The Estate, Mid-Performance</span></div>
+            <p>Berger described the gap between simply living and being aware of being seen. A waiting room that knew it was watched would rearrange its chairs. It would compose itself.</p>
+            <p>That gap is the two canvases on either side of you. To the left, rooms doing their jobs. To the right, the same rooms performing them. Tap any card and it releases a number — likes leaping from single digits into five figures. <strong>The number is the thesis.</strong> Nothing structural has changed; only the regard has.</p>
+          </section>
+
+          <!-- MOMENT 4 — counter-feed -->
+          <div class="tool untouched" id="toolUntouched">
+            <div class="th"><span class="t">Rooms that simply are</span><span class="v">counter-feed</span></div>
+            <div class="ulist" id="untouchedList"></div>
+          </div>
+
+          <!-- SECTION IV -->
+          <section class="ess-sec" id="s4" data-stage="4" data-cluster="3">
+            <div class="ess-kale">IV <span class="n">— What the Room Does to Itself</span></div>
+            <p>There is a word that gives the game away: <em>inviting</em>. The inviting space is the performed space. It has already imagined you into it; it has already been, in a sense, where you are now standing — anticipating your photograph before you arrive.</p>
+            <div class="ess-pull">The spectacle is not a heap of images. It is a relation between people, conducted through images — and a room can be built to hold it.
+              <cite>after Guy Debord, The Society of the Spectacle</cite>
+            </div>
+            <p>Notice the small red mark on some rooms to your left. A fire extinguisher: the one thing that cannot be refitted, exempt from the whole program. And yet in the real building it is not removed — it is moved behind a custom door, matched to the millwork. The room stays exactly as safe as before. It simply stops admitting it. That is the smoothest trick of all.</p>
+          </section>
+
+          <!-- SECTION V -->
+          <section class="ess-sec" id="s5" data-stage="5" data-cluster="4">
+            <div class="ess-kale">V <span class="n">— Who Is It For</span></div>
+            <p>The room that works is for the person standing in it. The room that performs is for the photo of the person standing in it. Between those two rooms a whole city has quietly been built — and not by architects alone, but by a public that has learned to want what photographs well.</p>
+            <p>So: the corpus you have been reading through. Forty-nine civic rooms, most of them mid-performance, a few still holding out, one fire extinguisher that will not move. The likes go up either way.</p>
+            <p class="live-readout"><b id="roomsRefitted">0</b> rooms refitted out of 49 · <b id="likesMinted">0</b> likes minted this session</p>
+          </section>
+
+        </div>
+      </div>
+
+      <div class="center-foot">
+        <div class="cf-label">Liked rooms</div>
+        <div class="cf-num"><span id="footTotal">0</span></div>
+        <div class="cf-label cf-right">likes minted</div>
+      </div>
+    </div>
+
+    <!-- RIGHT CANVAS (looked-at) -->
+    <div class="canvas guided" id="rightCanvas">
+      <div class="clabel out">Looked-at</div>
+      <div class="chint" id="rightHint">drag to pan · scroll to zoom</div>
+      <div class="czoom" id="rightZoom">100%</div>
+      <div class="canvas-inner" id="rightInner"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="comfyui_bridge.js"></script>
+<script src="likable_public_v3.js"></script>
+</body>
+</html>
