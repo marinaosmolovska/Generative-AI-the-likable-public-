@@ -93,6 +93,26 @@ function buildCard(data, side) {
     div.classList.add('pulse');
     div.addEventListener('animationend', () => div.classList.remove('pulse'), { once: true });
     refitPair(data.idx);
+
+    // Set this card as the generation target
+    _genTargetIdx = data.idx;
+    document.getElementById('genHint').textContent =
+      `target: ${data.name} · right canvas card #${data.idx + 1}`;
+
+    // In img2img / img+text mode, grab the card's current thumb as the reference image
+    const thumbImg = div.querySelector('.thumb-img');
+    if (thumbImg?.src && thumbImg.classList.contains('loaded')) {
+      fetch(thumbImg.src)
+        .then(r => r.blob())
+        .then(blob => {
+          _genFile = new File([blob], 'ref.png', { type: 'image/png' });
+          const prev = document.getElementById('genPreview');
+          prev.src = thumbImg.src;
+          prev.style.display = 'block';
+          document.getElementById('genFileName').textContent = data.name;
+        })
+        .catch(() => {});
+    }
   });
 
   return div;
@@ -392,9 +412,59 @@ document.getElementById('toolSwap').addEventListener('click', () => {
 });
 
 // ── AI Generation ──────────────────────────────────────────────────────────────────
-let genCardIdx = 0; // tracks which right-canvas card to fill next
+let _genTargetIdx = 0;
 
-async function generateAndDisplay({ image = null, prompt, loraStrength = 1, steps = 20 } = {}) {
+function applyCompareSlider(thumb, beforeSrc, afterSrc, cardName) {
+  // Remove any existing slider
+  const old = thumb.querySelector('.thumb-compare');
+  if (old) old.remove();
+
+  const wrap = document.createElement('div');
+  wrap.className = 'thumb-compare';
+
+  if (beforeSrc) {
+    wrap.innerHTML =
+      `<div class="tc-before"><img src="${beforeSrc}" alt="input"></div>` +
+      `<div class="tc-after"><img src="${afterSrc}" alt="output"></div>` +
+      `<div class="tc-divider"><div class="tc-handle">◁▷</div></div>` +
+      `<span class="tc-label tl">input · ${(cardName || 'civic').toLowerCase()}</span>` +
+      `<span class="tc-label tr">output · lora</span>`;
+  } else {
+    wrap.innerHTML =
+      `<div class="tc-after" style="clip-path:none"><img src="${afterSrc}" alt="output"></div>` +
+      `<span class="tc-label tr">output · lora</span>`;
+  }
+
+  thumb.appendChild(wrap);
+
+  if (!beforeSrc) return;
+
+  const divider = wrap.querySelector('.tc-divider');
+  const afterEl = wrap.querySelector('.tc-after');
+  let pct = 50;
+
+  function setPos(p) {
+    pct = Math.min(98, Math.max(2, p));
+    divider.style.left = pct + '%';
+    afterEl.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
+  }
+  setPos(50);
+
+  let dragging = false;
+  wrap.addEventListener('pointerdown', e => {
+    e.stopPropagation();
+    dragging = true;
+    wrap.setPointerCapture(e.pointerId);
+  });
+  wrap.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const rect = wrap.getBoundingClientRect();
+    setPos(((e.clientX - rect.left) / rect.width) * 100);
+  });
+  wrap.addEventListener('pointerup', () => { dragging = false; });
+}
+
+async function generateAndDisplay({ image = null, prompt, loraStrength = 1, steps = 20, targetIdx = _genTargetIdx } = {}) {
   if (!window.ComfyBridge) { alert('ComfyBridge not loaded'); return; }
 
   const genBtn    = document.getElementById('genBtn');
@@ -407,7 +477,9 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
   genStatus.textContent = 'queuing…';
   genProg.style.display = 'block';
   genBar.style.width    = '0%';
-  genHint.textContent   = 'result replaces the next card in the right canvas';
+  genHint.textContent   = 'generating…';
+
+  const beforeSrc = image ? URL.createObjectURL(image) : null;
 
   try {
     const url = await window.ComfyBridge.generate({
@@ -418,17 +490,23 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
       }
     });
 
-    // Put generated image on the next right-canvas card
-    const target = rCards[genCardIdx % rCards.length];
-    const img    = target.querySelector('.thumb-img');
-    if (img) {
-      img.onload = () => img.classList.add('loaded');
-      img.src = url;
-    }
-    genCardIdx++;
+    const idx    = targetIdx % rCards.length;
+    const target = rCards[idx];
+    const data   = tileData[idx];
+    const thumb  = target.querySelector('.thumb');
+
+    // Apply before/after slider in the card's thumb area
+    applyCompareSlider(thumb, beforeSrc, url, data.name);
+
+    // Make card fully visible and mark as generated
+    target.classList.add('generated', 'warm');
+
+    // Animate likes to reflect LoRA result
+    refitPair(idx);
 
     genStatus.textContent = 'done ✓';
     genBar.style.width    = '100%';
+    genHint.textContent   = `saved to canvas · ${data.name}`;
     setTimeout(() => {
       genProg.style.display = 'none';
       genStatus.textContent = 'ready';
@@ -439,6 +517,7 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
     genHint.textContent    = err.message;
     genProg.style.display  = 'none';
     console.error('[ComfyBridge]', err);
+    if (beforeSrc) URL.revokeObjectURL(beforeSrc);
   } finally {
     genBtn.disabled = false;
   }
@@ -481,7 +560,7 @@ document.getElementById('genBtn').addEventListener('click', () => {
     return;
   }
 
-  generateAndDisplay({ image, prompt, loraStrength });
+  generateAndDisplay({ image, prompt, loraStrength, targetIdx: _genTargetIdx });
 });
 
 const listEl = document.getElementById('untouchedList');

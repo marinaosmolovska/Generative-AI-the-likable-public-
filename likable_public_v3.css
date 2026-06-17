@@ -175,7 +175,7 @@ body {
   grid-template-columns: repeat(3, 180px);
   gap: 8px;
   padding: 12px;
-  opacity: 0.5;
+  opacity: 1;
 }
 
 .canvas-inner.animate {
@@ -191,8 +191,8 @@ body {
   border-radius: var(--reg-rad);
   overflow: hidden;
   cursor: pointer;
-  opacity: 0.09;
-  filter: saturate(0.18);
+  opacity: 0.44;
+  filter: saturate(0.44);
   transition: opacity 0.5s ease, filter 0.5s ease,
               transform 0.5s cubic-bezier(.22,.61,.36,1),
               border-color 0.9s ease, border-radius 0.9s ease,
@@ -282,13 +282,16 @@ body {
 .card.warm .cnum     { color: var(--terra-deep); }
 .card.warm .ck       { color: var(--terra); }
 
-/* Focus: guided dimming — hot cards emerge very subtly */
-.canvas.guided .card      { opacity: 0.05; filter: saturate(0.1); }
-.canvas.guided .card.hot  { opacity: 0.28; filter: saturate(0.55); box-shadow: 0 6px 14px -10px rgba(30,22,12,.2); }
-.canvas.guided .card.hot .cn   { opacity: 0.85; }
-.canvas.guided .card.hot .cnum { opacity: 0.8; }
-.canvas.guided .card.hot .hk   { opacity: 0.7; }
-.canvas:not(.guided) .card { opacity: 0.09; filter: saturate(0.18); }
+/* Focus: guided dimming — hot cards emerge clearly */
+.canvas.guided .card      { opacity: 0.22; filter: saturate(0.28); }
+.canvas.guided .card.hot  { opacity: 0.88; filter: saturate(1); box-shadow: 0 6px 18px -8px rgba(30,22,12,.28); }
+.canvas.guided .card.hot .cn   { opacity: 1; }
+.canvas.guided .card.hot .cnum { opacity: 1; }
+.canvas.guided .card.hot .hk   { opacity: 0.9; }
+.canvas:not(.guided) .card { opacity: 0.44; filter: saturate(0.44); }
+
+/* Generated cards are always fully visible */
+.card.generated { opacity: 1 !important; filter: saturate(1) !important; }
 
 /* Tap animations */
 .card.pulse { animation: cardPulse 0.5s ease; }
@@ -303,6 +306,69 @@ body {
   45%  { transform: translateY(-3px); color: var(--terra); }
   100% { transform: translateY(0); }
 }
+
+/* ── BEFORE / AFTER COMPARISON SLIDER ──────────────── */
+.thumb-compare {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: col-resize;
+  user-select: none;
+}
+.thumb-compare .tc-before,
+.thumb-compare .tc-after {
+  position: absolute;
+  inset: 0;
+}
+.thumb-compare .tc-before img,
+.thumb-compare .tc-after img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.thumb-compare .tc-after {
+  clip-path: inset(0 50% 0 0);
+}
+.thumb-compare .tc-divider {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%;
+  width: 1.5px;
+  background: rgba(244,242,236,0.9);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.thumb-compare .tc-handle {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #f4f2ec;
+  border: 1px solid rgba(21,19,14,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  letter-spacing: -1px;
+  color: var(--ink-2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+.thumb-compare .tc-label {
+  position: absolute;
+  bottom: 7px;
+  font-family: var(--mono);
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 6px;
+  color: #f4f2ec;
+  pointer-events: none;
+}
+.thumb-compare .tc-label.tl  { left: 6px;  background: rgba(20,18,14,.72); }
+.thumb-compare .tc-label.tr  { right: 6px; background: var(--terra); }
 
 /* ── CENTER COLUMN ──────────────────────────────────── */
 .center {
