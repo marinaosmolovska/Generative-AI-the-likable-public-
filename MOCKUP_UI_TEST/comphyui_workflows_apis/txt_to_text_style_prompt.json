@@ -3,8 +3,8 @@
     "inputs": {
       "model": "openai/gpt-oss-20b",
       "max_attempts_on_fail": 10,
-      "temperature": 0.1,
-      "seed": 2048,
+      "temperature": 0.71,
+      "seed": 1405,
       "use_native_tools": true,
       "max_tokens": -1,
       "min_p": 0.1,
@@ -29,7 +29,7 @@
         0
       ],
       "rulesets": [
-        "140",
+        "198",
         0
       ]
     },
@@ -56,7 +56,7 @@
   },
   "124": {
     "inputs": {
-      "STRING": "architectural interior photography, contemporary restaurant, avant-garde boutique design, post modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating groin vault ceiling arches, sweeping geometric curves, dusty rose pink accents, pale salmon pink highlights, desaturated powder blue undertones, ombre coral pink gradient, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art gallery layout",
+      "STRING": "architectural interior photography, contemporary hotel hall, avant‑garde boutique design, post‑modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, indirect accent wall shadows, minimal art‑gallery layout, clean one‑point perspective view down vaulted centerline axis",
       "INPUT": [
         "126",
         0
@@ -70,7 +70,7 @@
   "125": {
     "inputs": {
       "key": "building",
-      "value": "restaurant"
+      "value": "hotel hall"
     },
     "class_type": "Griptape Create: Key Value Pair",
     "_meta": {
@@ -97,8 +97,8 @@
   },
   "140": {
     "inputs": {
-      "name": "Image generation prompt rules",
-      "rules": "Create the best, precise and very descriptive image generation prompt.\ndon't use symbols but commas to separate words"
+      "name": "Image generation prompt rule 1",
+      "rules": "Create the best, precise and very descriptive image generation prompt."
     },
     "class_type": "Griptape Create: Rules",
     "_meta": {
@@ -165,7 +165,7 @@
   },
   "182": {
     "inputs": {
-      "DICTIONARY": "{'building': 'restaurant', 'style_prompt': 'avant-garde contemporary design boutique, post-modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art-gallery layout'}",
+      "DICTIONARY": "{'building': 'hotel hall', 'style_prompt': 'avant-garde contemporary design boutique, post-modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art-gallery layout, clean one-point perspective view looking down the vaulted centerline axis'}",
       "INPUT": [
         "123",
         0
@@ -178,7 +178,7 @@
   },
   "184": {
     "inputs": {
-      "value": "minimalist scandinavian design, japandi aesthetic, pale birch wood blonde, timber slat paneling, micro-cement walls, straight linear alignments, minimalist built-in profiles, alabaster white, clean sand beige, warm muted ivory, soft uniform overhead panel light, diffuse shadowless daytime ambience, airy interior layout"
+      "value": "minimalist scandinavian design, japandi aesthetic, pale birch wood blonde, timber slat paneling, micro-cement walls, straight linear alignments, minimalist built-in profiles, alabaster white, clean sand beige, warm muted ivory, soft uniform overhead panel light, diffuse shadowless daytime ambience, airy interior layout, straight-on balanced perspective shot\n"
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -187,7 +187,7 @@
   },
   "185": {
     "inputs": {
-      "value": "organic mediterranean biophilic wellness aesthetic, sculptural cavernous design, monolithic textured stucco finish, smooth limestone floor, soft matte micro-cement, rhythmic structural barrel vault arches, pill-shaped recessed wall niches, warm oatmeal beige, dusty sage green, muted terracotta orange, soft peach beige, uniform hidden back wall wash lighting, low-intensity warm point lamps, sculptural high-design sanctuary"
+      "value": "organic mediterranean biophilic wellness aesthetic, sculptural cavernous design, monolithic textured stucco finish, smooth limestone floor, soft matte micro-cement, rhythmic structural barrel vault arches, pill-shaped recessed wall niches, warm oatmeal beige, dusty sage green, muted terracotta orange, soft peach beige, uniform hidden back wall wash lighting, low-intensity warm point lamps, sculptural high-design sanctuary, clean front elevation perspective"
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -196,7 +196,7 @@
   },
   "186": {
     "inputs": {
-      "value": "vintage mid-century modern style, nostalgic retro 1960s, vertical wood slat wainscoting, parquet timber flooring, rough matte stucco, vinyl leather upholstery, coffered square ceiling grid, repeating vertical lines, deep midnight blue, golden oak brown, olive green, chocolate brown, sharp high-contrast lateral sunlight, glowing spherical pendant globes, boutique hospitality lounge"
+      "value": "vintage mid-century modern style, nostalgic retro 1960s, vertical wood slat wainscoting, parquet timber flooring, rough matte stucco, vinyl leather upholstery, coffered square ceiling grid, repeating vertical lines, deep midnight blue, golden oak brown, olive green, chocolate brown, sharp high-contrast lateral sunlight, glowing spherical pendant globes, boutique hospitality lounge, standard interior perspective"
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -205,7 +205,7 @@
   },
   "187": {
     "inputs": {
-      "value": "industrial loft style, raw warehouse adaptive reuse, vertical walnut wood paneling, raw cast concrete pillars, polished concrete floor, double-height spatial volume, exposed structural columns, raw industrial concrete grey, historic terra-cotta brick red, matte charcoal black, sharp high-contrast lateral sunlight, warm golden spotlight cones, architectural showroom setting"
+      "value": "industrial loft style, raw warehouse adaptive reuse, vertical walnut wood paneling, raw cast concrete pillars, polished concrete floor, double-height spatial volume, exposed structural columns, raw industrial concrete grey, historic terra-cotta brick red, matte charcoal black, sharp high-contrast lateral sunlight, warm golden spotlight cones, architectural showroom setting, dramatic high-angle deep perspective view\n "
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -214,7 +214,7 @@
   },
   "188": {
     "inputs": {
-      "value": "contemporary pop graphic layout, bold high-contrast interior, glossy square subway ceramic tiles, classic checkered marble floor, fluted velvet facing, strict uniform square tile grid matrix, grand sweeping wall arches, deep cobalt blue, emerald green, deep navy blue, pure bone white, bright golden chandelier glow, focused white directional spotlight lines, high-concept boutique venue"
+      "value": "contemporary pop graphic layout, bold high-contrast interior, glossy square subway ceramic tiles, classic checkered marble floor, fluted velvet facing, strict uniform square tile grid matrix, grand sweeping wall arches, deep cobalt blue, emerald green, deep navy blue, pure bone white, bright golden chandelier glow, focused white directional spotlight lines, high-concept boutique venue, standard wide-angle interior perspective"
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -223,7 +223,7 @@
   },
   "189": {
     "inputs": {
-      "value": "avant-garde contemporary design boutique, post-modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art-gallery layout"
+      "value": "avant-garde contemporary design boutique, post-modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art-gallery layout, clean one-point perspective view looking down the vaulted centerline axis"
     },
     "class_type": "PrimitiveStringMultiline",
     "_meta": {
@@ -241,7 +241,7 @@
         0
       ],
       "string_2": [
-        "124",
+        "201",
         0
       ]
     },
@@ -270,7 +270,7 @@
   },
   "197": {
     "inputs": {
-      "text_0": "igcflr architectural interior photography, contemporary restaurant, avant-garde boutique design, post modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating groin vault ceiling arches, sweeping geometric curves, dusty rose pink accents, pale salmon pink highlights, desaturated powder blue undertones, ombre coral pink gradient, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art gallery layout",
+      "text_0": "igcflr Architectural interior photography of a sleek contemporary hotel atrium, an avant‑garde boutique lounge with post‑modernist flair, featuring raw plaster walls in dusty rose and pale salmon undertones, polished terrazzo floors that reflect soft ombre coral pink and powder blue lights, custom-painted fiberglass fixtures suspended from sweeping groin vault ceiling arches that curve geometrically across the space; the lighting is diffuse and uniform across the panelled ceiling, casting gentle indirect shadows along accent walls, all framed in a minimal art‑gallery style composition with a clean one‑point perspective looking straight down the vaulted centerline axis.",
       "text": [
         "194",
         0
@@ -279,6 +279,81 @@
     "class_type": "ShowText|pysssss",
     "_meta": {
       "title": "Show Text 🐍"
+    }
+  },
+  "198": {
+    "inputs": {
+      "rules_1": [
+        "140",
+        0
+      ],
+      "rules_2": [
+        "199",
+        0
+      ],
+      "rules_3": [
+        "200",
+        0
+      ]
+    },
+    "class_type": "Griptape Combine: Rules List",
+    "_meta": {
+      "title": "Griptape Combine: Rules List"
+    }
+  },
+  "199": {
+    "inputs": {
+      "name": "Image generation prompt rule 2",
+      "rules": "don't use symbols but commas to separate words"
+    },
+    "class_type": "Griptape Create: Rules",
+    "_meta": {
+      "title": "Griptape Create: Rules"
+    }
+  },
+  "200": {
+    "inputs": {
+      "name": "Image generation prompt rule 3",
+      "rules": "try to vary a bit the descriptions starting from the dictionaries"
+    },
+    "class_type": "Griptape Create: Rules",
+    "_meta": {
+      "title": "Griptape Create: Rules"
+    }
+  },
+  "201": {
+    "inputs": {
+      "STRING": [
+        "124",
+        0
+      ],
+      "max_subtasks": 1,
+      "agent": [
+        "121",
+        1
+      ],
+      "config": [
+        "120",
+        0
+      ],
+      "rulesets": [
+        "202",
+        0
+      ]
+    },
+    "class_type": "Griptape Create: Agent",
+    "_meta": {
+      "title": "Griptape Create: Agent"
+    }
+  },
+  "202": {
+    "inputs": {
+      "name": "Image generation prompt rules",
+      "rules": "try to vary a bit the descriptions, remove and add details as you whish, do not write bullet points"
+    },
+    "class_type": "Griptape Create: Rules",
+    "_meta": {
+      "title": "Griptape Create: Rules"
     }
   }
 }
