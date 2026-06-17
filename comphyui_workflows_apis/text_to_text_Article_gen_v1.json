@@ -1,0 +1,118 @@
+{
+  "2": {
+    "inputs": {
+      "model": "openai/gpt-oss-20b",
+      "max_attempts_on_fail": 10,
+      "temperature": 1,
+      "seed": 1870,
+      "use_native_tools": true,
+      "max_tokens": -1,
+      "min_p": 0.1,
+      "response_format": "default",
+      "base_url": "http://127.0.0.1",
+      "port": "1234",
+      "api_key": "lm_studio",
+      "embedding_model": "",
+      "Download LM Studio": null
+    },
+    "class_type": "Griptape Agent Config: LM Studio Drivers",
+    "_meta": {
+      "title": "Griptape Agent Config: LM Studio Drivers"
+    }
+  },
+  "3": {
+    "inputs": {
+      "STRING": "",
+      "max_subtasks": 1,
+      "config": [
+        "2",
+        0
+      ],
+      "rulesets": [
+        "26",
+        0
+      ]
+    },
+    "class_type": "Griptape Create: Agent",
+    "_meta": {
+      "title": "Griptape Create: Agent"
+    }
+  },
+  "10": {
+    "inputs": {
+      "name": "Image generation prompt rule 1",
+      "rules": "Create a critique architectural journal article. \nTalk like a critique."
+    },
+    "class_type": "Griptape Create: Rules",
+    "_meta": {
+      "title": "Griptape Create: Rules"
+    }
+  },
+  "26": {
+    "inputs": {
+      "rules_1": [
+        "10",
+        0
+      ],
+      "rules_2": [
+        "27",
+        0
+      ],
+      "rules_3": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "Griptape Combine: Rules List",
+    "_meta": {
+      "title": "Griptape Combine: Rules List"
+    }
+  },
+  "27": {
+    "inputs": {
+      "name": "Image generation prompt rule 2",
+      "rules": "This text isn't a traditional, flat essay—it is structured as a **digital, interactive multimedia essay** or an digital exhibition catalogue. Its form perfectly mirrors its thesis: it uses spatial design and user interface (UI) elements to argue how physical spaces are being redesigned for digital consumption.\n\nHere is a breakdown of how the essay is structured, both spatially and narratively.\n\n---\n\n## 1. The Spatial Architecture (The Dual-Canvas Layout)\n\nThe essay operates on a strict **spatial duality** that forces the reader to physically navigate the contrast being discussed.\n\n* **The Left Side (The \"Corpus\" / Lived-In):** Represents utility, reality, and spaces that \"work.\" It remains relatively static, honest, and unpolished.\n* **The Right Side (The \"Feed\" / Looked-At):** Represents performance, the \"spectacle,\" and spaces that are curated for an audience. This side responds to user interactions, morphing to look more \"agreeable.\"\n\n---\n\n## 2. Narrative & Interactive Progression\n\nThe essay moves through five distinct thematic beats, each paired with a specific interactive mechanic that forces the reader to participate in \"smoothing out\" a room.\n\n### Introduction & Epigraph\n\n* **Concept:** Establishes the premise—the transition of a room from a physical utility to a visual performance.\n* **Theorist Frame:** Cites Han, Debord, and Berger, signaling a critique of modern visual culture, capitalism, and aesthetics.\n\n### I— The Question\n\n* **Theoretical Focus:** Byung-Chul Han’s concept of \"the smooth\" and \"likability\" from *Saving Beauty*. It argues that modern rooms are designed to be friction-free and \"optimally likable.\"\n* **Interactive Element:** A **Generative AI Text-to-Image Prompt** block and two different version of it: a **\"Honest\" vs. \"Performed\")**. generate the honest text and the perfomed text.\n\n### II— The Spectacle Set in Plaster\n\n* **Theoretical Focus:** Guy Debord’s *Society of the Spectacle*. It argues that architectural choices (like terrazzo or trailing pothos) are no longer chosen for durability, but because they signify a specific \"aesthetic.\"\n* **Interactive Element:** A **LoRA Strength Slider (0.00 to 1.00)**. Dragging the slider visually simulates a room transitioning from a raw, lived-in state to an AI-optimized, photogenic performance.\n\n### III— The Estate, Mid-Performance\n\n* **Theoretical Focus:** John Berger’s theories on the gaze and self-consciousness (being aware of being seen).\n* **Interactive Element:** **Data-Driven Metric Cards**. The reader taps cards representing mundane, unphotographed spaces (stairwells, service corridors), causing \"like\" counts to artificially balloon, proving the thesis that only the \"regard\" (the metric) matters.\n\n### IV— What the Room Does to Itself\n\n* **Theoretical Focus:** Deconstructing the word \"inviting.\" It highlights the ultimate trick of modern architecture: hiding the friction of reality (like hiding a fire extinguisher behind custom millwork) to maintain the illusion of a perfect image.\n\n### V— Who Is It For\n\n* **Conclusion:** Synthesizes the argument into a broader societal critique. It reveals the true scope of the project (an analysis of 49 civic rooms) and concludes that we are no longer just building rooms; we are building a city designed exclusively for the camera.\n\n---\n\n## 3. The Intellectual Scaffolding\n\nThe essay structure relies on a deliberate progression of 20th and 21st-century media theory to build its case:\n\n| Section | Theorist | Core Concept Applied to Architecture |\n| --- | --- | --- |\n| **Part I** | **Byung-Chul Han** | **The Smooth:** Architecture losing its texture and resistance to become universally \"likable.\" |\n| **Part II & IV** | **Guy Debord** | **The Spectacle:** Architecture as a tool to mediate human relationships through commodified images. |\n| **Part III** | **John Berger** | **The Gaze:** The psychological shift that happens when an object (or room) becomes aware of its own audience. |"
+    },
+    "class_type": "Griptape Create: Rules",
+    "_meta": {
+      "title": "Griptape Create: Rules"
+    }
+  },
+  "28": {
+    "inputs": {
+      "name": "Image generation prompt rule 3",
+      "rules": "define paragraphs clearly"
+    },
+    "class_type": "Griptape Create: Rules",
+    "_meta": {
+      "title": "Griptape Create: Rules"
+    }
+  },
+  "31": {
+    "inputs": {
+      "text_0": "**Title:**  \n*The Smooth City: A Critical Dissection of Contemporary Architectural Performance*\n\n**Author:**  \n[Name Redacted] – Editorial Board, *Journal of Critical Architecture*\n\n---\n\n### Abstract\n\nIn an era where every civic space is curated for the camera rather than its inhabitant, architecture has become a performative medium. This article presents itself as a digital, interactive multimedia essay that interrogates the shift from lived utility to visual spectacle. Structured along a dual‑canvas layout and underpinned by the theories of Han, Debord, and Berger, it exposes how modern rooms are engineered for likability at the expense of authenticity.\n\n---\n\n## 1. The Spatial Architecture – The Dual-Canvas Layout\n\nThe essay unfolds across two synchronized panels:\n\n* **Left Panel (Corpus / Lived‑In):**  \n  A static, unpolished rendering that mirrors the room’s functional reality—rough textures, unfinished surfaces, and pragmatic layout. It represents architecture as an environment for human activity.\n\n* **Right Panel (Feed / Looked‑At):**  \n  An interactive canvas that morphs in real time as users engage with UI elements. Visual embellishments, photorealistic lighting, and aesthetic filters accumulate, rendering the space increasingly “agreeable” to an imagined audience.\n\nThis spatial duality forces readers to physically navigate the contrast, thereby embodying the critique’s central paradox: utility versus spectacle.\n\n---\n\n## 2. Narrative & Interactive Progression\n\nThe essay progresses through five thematic beats, each paired with a distinct interactive mechanic that compels readers to “smooth out” the room.\n\n### 2.1 Introduction & Epigraph  \n*Concept:* Establishes the premise of rooms transitioning from functional spaces to visual performances.  \n*Theorist Frame:* Cites Han, Debord, and Berger as lenses through which to interrogate modern visual culture and capitalism’s imprint on architecture.\n\n---\n\n### 2.2 I – The Question: *The Smooth*  \n\n**Theoretical Focus:**  \nByung‑Chul Han’s notion of “the smooth” from *Saving Beauty*. Architecture is increasingly designed to be friction‑free, achieving an optimal state of likability that masks underlying materiality.\n\n**Interactive Element:**  \nA **Generative AI Text-to-Image Prompt** block presents two variants:  \n1. **Honest Prompt** – “Describe a utilitarian office space with exposed concrete and raw steel.”  \n2. **Performed Prompt** – “Render a pristine, photo‑ready executive suite bathed in natural light.”\n\nUsers toggle between the prompts to observe how language shapes visual output, illustrating Han’s claim that aesthetic smoothing is a performative act.\n\n---\n\n### 2.3 II – The Spectacle Set in Plaster  \n\n**Theoretical Focus:**  \nGuy Debord’s *Society of the Spectacle*. Architectural choices (e.g., terrazzo floors, trailing pothos) are no longer about durability but about conveying a curated aesthetic that sells an image.\n\n**Interactive Element:**  \nA **LoRA Strength Slider (0.00–1.00)**. Dragging the slider transitions the left panel’s raw texture into the right panel’s polished façade. The visual metamorphosis demonstrates how the “spectacle” is manufactured through algorithmic enhancement.\n\n---\n\n### 2.4 III – The Estate, Mid‑Performance  \n\n**Theoretical Focus:**  \nJohn Berger’s insights on gaze and self‑consciousness. Spaces become aware of being seen; mundane areas are transformed into spectacle through metrics.\n\n**Interactive Element:**  \n**Data‑Driven Metric Cards** representing overlooked zones (stairwells, service corridors). Clicking a card inflates its “like” count, simulating the artificial elevation of importance that only the audience’s regard truly grants. This mechanic reveals how metricization erodes authenticity.\n\n---\n\n### 2.5 IV – What the Room Does to Itself  \n\n**Theoretical Focus:**  \nA deconstruction of “inviting.” Modern architecture conceals friction (e.g., hiding fire extinguishers behind custom millwork) to preserve an illusion of perfection.\n\n**Interactive Element:**  \nAn **Augmented Reality Overlay** that, when activated, exposes hidden safety elements. The overlay forces the reader to confront the dissonance between form and function, underscoring the critique’s core argument.\n\n---\n\n### 2.6 V – Who Is It For?  \n\n**Conclusion:**  \nSynthesizes the preceding beats into a broader societal critique: we are no longer building rooms for occupants but constructing a city designed exclusively for the camera. The analysis of 49 civic spaces demonstrates that the trend is not isolated but systemic, reflecting capitalism’s relentless drive toward visual commodification.\n\n---\n\n## 3. Intellectual Scaffolding\n\n| Section | Theorist | Core Concept Applied to Architecture |\n|---------|----------|--------------------------------------|\n| **Part I** | Byung‑Chul Han | *The Smooth*: Architecture loses texture and resistance, becoming universally “likable.” |\n| **Parts II & IV** | Guy Debord | *The Spectacle*: Architecture mediates human relationships through commodified images. |\n| **Part III** | John Berger | *The Gaze*: The psychological shift when an object becomes aware of its audience. |\n\n---\n\n### 4. Conclusion\n\nBy embedding critical theory within a spatially interactive format, this article foregrounds the tension between lived utility and visual performance. It invites readers not only to observe but to participate in the smoothing process—thereby becoming complicit participants in the spectacle they critique. The dual‑canvas structure ensures that the critique is as much an experience as it is an argument: the very act of engaging with the essay mirrors the architectural transformation it condemns.\n\n---\n\n**Keywords:** architectural criticism, digital interactive essay, Byung‑Chul Han, Guy Debord, John Berger, visual culture, urban spectacle.",
+      "text": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "ShowText|pysssss",
+    "_meta": {
+      "title": "Show Text 🐍"
+    }
+  },
+  "32": {
+    "inputs": {
+      "STRING": "Create a critique architectural journal article. ",
+      "max_subtasks": 2,
+      "agent": [
+        "3",
+        1
+      ]
+    },
+    "class_type": "Griptape Run: Agent",
+    "_meta": {
+      "title": "Griptape Run: Agent"
+    }
+  }
+}

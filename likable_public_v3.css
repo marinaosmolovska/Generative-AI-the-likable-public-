@@ -115,10 +115,12 @@ body {
   min-width: 0;
   position: relative;
   overflow: hidden;
-  background: var(--bg-grad);
+  background-color: #c9c6be;
+  background-image: radial-gradient(circle, rgba(50,46,38,0.22) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: 0 0;
   cursor: grab;
   touch-action: none;
-  transition: background 0.9s ease;
 }
 
 .canvas.dragging { cursor: grabbing; }
@@ -293,6 +295,13 @@ body {
 /* Generated cards are always fully visible */
 .card.generated { opacity: 1 !important; filter: saturate(1) !important; }
 
+/* Left canvas: image library — no likes display */
+#leftCanvas .card .crow { display: none; }
+#leftCanvas .card .cn   { padding-bottom: 9px; }
+
+/* Left canvas cards: show a subtle "click to use" cue on hover */
+#leftCanvas .card:hover { outline: 1.5px solid rgba(180,86,58,0.5); }
+
 /* Tap animations */
 .card.pulse { animation: cardPulse 0.5s ease; }
 @keyframes cardPulse {
@@ -305,6 +314,16 @@ body {
   0%   { transform: translateY(0); }
   45%  { transform: translateY(-3px); color: var(--terra); }
   100% { transform: translateY(0); }
+}
+
+/* ── ESSAY COMPARE WRAPPER ──────────────────────────── */
+#genCompareWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
 }
 
 /* ── BEFORE / AFTER COMPARISON SLIDER ──────────────── */
@@ -752,6 +771,42 @@ body {
 }
 
 /* ── AI GENERATION TOOL ─────────────────────────────── */
+.likes-ctrl {
+  margin: 10px 0 8px;
+}
+.likes-ctrl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+}
+.likes-ctrl-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+}
+.likes-ctrl-val {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--reg-ink);
+}
+.likes-ctrl input[type="range"] {
+  width: 100%;
+  accent-color: var(--reg-ink);
+  cursor: pointer;
+}
+.likes-ctrl-ends {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--reg-soft);
+  margin-top: 3px;
+  opacity: 0.7;
+}
+
 .gen-tabs {
   display: flex;
   gap: 5px;
