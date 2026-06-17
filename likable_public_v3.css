@@ -303,7 +303,8 @@ body {
 #rightCanvas .card.hot      { opacity: 0.68; filter: saturate(0.8); }
 #rightCanvas .card.focused  { opacity: 1;    filter: saturate(1);   transition: opacity 0.2s ease, filter 0.2s ease; }
 #leftCanvas .card .crow { display: none; }
-#leftCanvas .card .cn   { padding-bottom: 9px; }
+#leftCanvas .card .cn   { display: none; }
+#rightCanvas .card .cn  { display: none; }
 
 /* Left canvas cards: show a subtle "click to use" cue on hover */
 #leftCanvas .card:hover { outline: 1.5px solid rgba(180,86,58,0.5); }
