@@ -295,7 +295,8 @@ body {
 /* Generated cards are always fully visible */
 .card.generated { opacity: 1 !important; filter: saturate(1) !important; }
 
-/* Left canvas: image library — no likes display */
+/* Left canvas: image library — more visible, no likes display */
+#leftCanvas .card { opacity: 0.58; filter: saturate(0.58); }
 #leftCanvas .card .crow { display: none; }
 #leftCanvas .card .cn   { padding-bottom: 9px; }
 
