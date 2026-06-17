@@ -636,20 +636,15 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
     const genImg = genCard.querySelector('.thumb-img');
     genImg.addEventListener('load', () => genImg.classList.add('loaded'));
     genImg.src = url;
-    const likesFrom = rCurrentLikes[idx];
-    const likesTo   = tileData[idx].after;
-
     document.getElementById('rightInner').insertBefore(genCard, rCard);
 
-    // Animate likes on original card + new generated card
     refitPair(idx);
-    animateLikes(genCard, likesFrom, likesTo, 900);
 
-    // Auto-score the generated result in the Instagram post frame
+    // Auto-score — calculated likes will animate onto genCard when done
     try {
       const blob    = await fetch(url).then(r => r.blob());
       const genFile = new File([blob], `generated_${idx}.png`, { type: blob.type || 'image/png' });
-      scoreAndRenderPost(genFile, url);
+      scoreAndRenderPost(genFile, url, genCard);
     } catch (e) {
       console.warn('[LikesCalculator] auto-score failed', e);
     }
@@ -761,9 +756,13 @@ function buildGrowthBars(likes) {
   document.getElementById('growthTotal').textContent = '→ ' + likes.toLocaleString();
 }
 
-function renderPost(res) {
+function renderPost(res, targetCard = null) {
   const likes = res.fake_likes;
   document.getElementById('likesNum').textContent    = likes.toLocaleString();
+  if (targetCard) {
+    const from = parseInt((targetCard.querySelector('.cnum')?.textContent || '0').replace(/,/g, ''), 10);
+    animateLikes(targetCard, from, likes, 900);
+  }
   document.getElementById('likesRepost').textContent = Math.round(likes * 0.06).toLocaleString();
   document.getElementById('likesDM').textContent     = Math.round(likes * 0.03).toLocaleString();
   document.getElementById('likesScore').textContent  = res.visual_score_0_100;
@@ -774,14 +773,14 @@ function renderPost(res) {
   document.getElementById('igPost').style.display = 'block';
 }
 
-async function scoreAndRenderPost(file, imgSrc) {
+async function scoreAndRenderPost(file, imgSrc, targetCard = null) {
   const status = document.getElementById('likesStatus');
   document.getElementById('likesPreview').src = imgSrc || URL.createObjectURL(file);
   document.getElementById('likesFileName').textContent = file.name;
   status.textContent = 'scoring…';
   try {
     const res = await window.LikesCalculator.calculate(file);
-    renderPost(res);
+    renderPost(res, targetCard);
     status.textContent = 'scored ✓';
   } catch (err) {
     status.textContent = 'error';
