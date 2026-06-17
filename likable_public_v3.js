@@ -19,6 +19,15 @@ const CHIPS = [
   { text: "linoleum floor",   warm: false }
 ];
 
+const STYLES = [
+  { name: "Industrial Loft",       prompt: "industrial loft style, raw warehouse adaptive reuse, vertical walnut wood paneling, raw cast concrete pillars, polished concrete floor, double-height spatial volume, exposed structural columns, raw industrial concrete grey, historic terra-cotta brick red, matte charcoal black, sharp high-contrast lateral sunlight, warm golden spotlight cones, architectural showroom setting, dramatic high-angle deep perspective view" },
+  { name: "Japandi",               prompt: "minimalist scandinavian design, japandi aesthetic, pale birch wood blonde, timber slat paneling, micro-cement walls, straight linear alignments, minimalist built-in profiles, alabaster white, clean sand beige, warm muted ivory, soft uniform overhead panel light, diffuse shadowless daytime ambience, airy interior layout, straight-on balanced perspective shot" },
+  { name: "Mid-Century Modern",    prompt: "vintage mid-century modern style, nostalgic retro 1960s, vertical wood slat wainscoting, parquet timber flooring, rough matte stucco, vinyl leather upholstery, coffered square ceiling grid, repeating vertical lines, deep midnight blue, golden oak brown, olive green, chocolate brown, sharp high-contrast lateral sunlight, glowing spherical pendant globes, boutique hospitality lounge, standard interior perspective" },
+  { name: "Avant-Garde Boutique",  prompt: "avant-garde contemporary design boutique, post-modernist lounge, textured raw plaster walls, smooth terrazzo flooring, custom painted fiberglass fixtures, prominent repeating structural groin vault ceiling arches, sweeping geometric curves, dusty rose pink, pale salmon pink, desaturated powder blue, ombre coral pink, soft uniform ceiling panel illumination, cast indirect accent wall shadows, minimal art-gallery layout, clean one-point perspective view looking down the vaulted centerline axis" },
+  { name: "Pop Graphic",           prompt: "contemporary pop graphic layout, bold high-contrast interior, glossy square subway ceramic tiles, classic checkered marble floor, fluted velvet facing, strict uniform square tile grid matrix, grand sweeping wall arches, deep cobalt blue, emerald green, deep navy blue, pure bone white, bright golden chandelier glow, focused white directional spotlight lines, high-concept boutique venue, standard wide-angle interior perspective" },
+  { name: "Organic Mediterranean", prompt: "organic mediterranean biophilic wellness aesthetic, sculptural cavernous design, monolithic textured stucco finish, smooth limestone floor, soft matte micro-cement, rhythmic structural barrel vault arches, pill-shaped recessed wall niches, warm oatmeal beige, dusty sage green, muted terracotta orange, soft peach beige, uniform hidden back wall wash lighting, low-intensity warm point lamps, sculptural high-design sanctuary, clean front elevation perspective" }
+];
+
 const NORMAL_INTERIORS = [
   'img dataset/normal interiors/02.jpg',
   'img dataset/normal interiors/0d6c196967485ad18ad08f06f8847b3f.jpg',
@@ -352,8 +361,49 @@ document.getElementById('loraSlider').addEventListener('input', function () {
     else if (lCards[i].dataset.done !== '1') c.classList.remove('warm');
   });
 
-  lCards.forEach(c => { c.style.opacity = 1 - v * 0.4; });
+
 });
+
+// ── Trigger word + prompt composition ────────────────────────────────────────
+const TRIGGER = 'igcflr';
+
+function ensureTrigger(p) {
+  return new RegExp(`^${TRIGGER}\\b`, 'i').test(p) ? p : `${TRIGGER} ${p}`;
+}
+
+function composeGenPrompt(styleText) {
+  const building = (document.getElementById('capBuilding').value || '').trim() || 'public waiting room';
+  return `${TRIGGER} Architectural interior photography of a contemporary ${building}, ${styleText}`;
+}
+
+// ── Style picker ──────────────────────────────────────────────────────────────
+const capStylesEl = document.getElementById('capStyles');
+let _selectedStyle = null;
+
+function updateGenPrompt() {
+  if (_selectedStyle == null) return;
+  document.getElementById('genPromptText').value = composeGenPrompt(_selectedStyle);
+}
+
+STYLES.forEach(({ name, prompt }) => {
+  const btn = document.createElement('span');
+  btn.className = 'style-btn';
+  btn.textContent = name;
+  btn.addEventListener('click', () => {
+    const wasActive = btn.classList.contains('used');
+    capStylesEl.querySelectorAll('.style-btn').forEach(b => b.classList.remove('used'));
+    if (wasActive) {
+      _selectedStyle = null;
+    } else {
+      btn.classList.add('used');
+      _selectedStyle = prompt;
+      updateGenPrompt();
+    }
+  });
+  capStylesEl.appendChild(btn);
+});
+
+document.getElementById('capBuilding').addEventListener('input', updateGenPrompt);
 
 // ── Chips (populated by JS) ───────────────────────────────────────────────────
 const capChipsEl = document.getElementById('capChips');
@@ -523,6 +573,15 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
     // Animate likes to reflect LoRA result
     refitPair(idx);
 
+    // Auto-score the generated result in the Instagram post frame
+    try {
+      const blob    = await fetch(url).then(r => r.blob());
+      const genFile = new File([blob], `generated_${idx}.png`, { type: blob.type || 'image/png' });
+      scoreAndRenderPost(genFile, url);
+    } catch (e) {
+      console.warn('[LikesCalculator] auto-score failed', e);
+    }
+
     genStatus.textContent = 'done ✓';
     genBar.style.width    = '100%';
     genHint.textContent   = `saved · ${data.name}`;
@@ -575,7 +634,7 @@ document.getElementById('genFileInput').addEventListener('change', function () {
 
 // Generate button
 document.getElementById('genBtn').addEventListener('click', () => {
-  const prompt       = document.getElementById('genPromptText').value.trim();
+  const prompt       = ensureTrigger(document.getElementById('genPromptText').value.trim());
   const loraStrength = parseFloat(document.getElementById('loraSlider').value);
   const image        = (_genMode === 'txt2img') ? null : _genFile;
 
@@ -585,5 +644,81 @@ document.getElementById('genBtn').addEventListener('click', () => {
   }
 
   generateAndDisplay({ image, prompt, loraStrength, targetIdx: _genTargetIdx });
+});
+
+// ── Likes calculator / Instagram post ────────────────────────────────────────
+const METRIC_BARS = [
+  { key: 'RMS_contrast',        label: 'contrast' },
+  { key: 'mirror_symmetry',     label: 'symmetry' },
+  { key: 'balance_score',       label: 'balance' },
+  { key: 'luminance_entropy',   label: 'light entropy' },
+  { key: 'color_entropy_HSV_H', label: 'color entropy' },
+  { key: 'edge_density',        label: 'edges' },
+];
+
+function buildMetricBars(metrics) {
+  const wrap = document.getElementById('metricBars');
+  wrap.innerHTML = '';
+  METRIC_BARS.forEach(({ key, label }) => {
+    const pct = Math.round(Math.min(1, Math.max(0, metrics[key] || 0)) * 100);
+    const row = document.createElement('div');
+    row.className = 'ig-mrow';
+    row.innerHTML =
+      `<span class="ig-mlabel">${label}</span>` +
+      `<span class="ig-mtrack"><span class="ig-mfill" style="width:${pct}%"></span></span>` +
+      `<span class="ig-mval">${pct}</span>`;
+    wrap.appendChild(row);
+  });
+}
+
+function buildGrowthBars(likes) {
+  const wrap = document.getElementById('growthBars');
+  wrap.innerHTML = '';
+  const days = 7;
+  const start = 0.15;
+  for (let i = 0; i < days; i++) {
+    const t    = i / (days - 1);
+    const ease = start + (1 - start) * Math.pow(t, 1.7);
+    const val  = Math.round(likes * ease);
+    const bar  = document.createElement('div');
+    bar.className  = 'ig-gbar';
+    bar.style.height = (ease * 100) + '%';
+    bar.title = `day ${i + 1}: ${val.toLocaleString()} likes`;
+    wrap.appendChild(bar);
+  }
+  document.getElementById('growthTotal').textContent = '→ ' + likes.toLocaleString();
+}
+
+function renderPost(res) {
+  const likes = res.fake_likes;
+  document.getElementById('likesNum').textContent    = likes.toLocaleString();
+  document.getElementById('likesRepost').textContent = Math.round(likes * 0.06).toLocaleString();
+  document.getElementById('likesDM').textContent     = Math.round(likes * 0.03).toLocaleString();
+  document.getElementById('likesScore').textContent  = res.visual_score_0_100;
+  document.getElementById('likesMood').textContent   = res.algorithm_mood;
+  document.getElementById('likesMult').textContent   = res.mood_multiplier;
+  buildMetricBars(res._metrics);
+  buildGrowthBars(likes);
+  document.getElementById('igPost').style.display = 'block';
+}
+
+async function scoreAndRenderPost(file, imgSrc) {
+  const status = document.getElementById('likesStatus');
+  document.getElementById('likesPreview').src = imgSrc || URL.createObjectURL(file);
+  document.getElementById('likesFileName').textContent = file.name;
+  status.textContent = 'scoring…';
+  try {
+    const res = await window.LikesCalculator.calculate(file);
+    renderPost(res);
+    status.textContent = 'scored ✓';
+  } catch (err) {
+    status.textContent = 'error';
+    console.error('[LikesCalculator]', err);
+  }
+}
+
+document.getElementById('likesFileInput').addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) scoreAndRenderPost(file);
 });
 
