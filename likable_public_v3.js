@@ -548,6 +548,15 @@ async function generateAndDisplay({ image = null, prompt, loraStrength = 1, step
     // Animate likes to reflect LoRA result
     refitPair(idx);
 
+    // ── Auto-score the generated result in the Instagram post frame ──
+    try {
+      const blob    = await fetch(url).then(r => r.blob());
+      const genFile = new File([blob], `generated_${idx}.png`, { type: blob.type || 'image/png' });
+      scoreAndRenderPost(genFile, url);
+    } catch (e) {
+      console.warn('[LikesCalculator] auto-score failed', e);
+    }
+
     genStatus.textContent = 'done ✓';
     genBar.style.width    = '100%';
     genHint.textContent   = `saved · ${data.name}`;
@@ -634,29 +643,79 @@ UNTOUCHED.forEach(({ name, desc, likes }) => {
   listEl.appendChild(row);
 });
 
-// ── Likes calculator ────────────────────────────────────────────────────────────
-document.getElementById('likesFileInput').addEventListener('change', async function () {
-  const file = this.files[0];
-  if (!file) return;
+// ── Likes calculator / Instagram post ────────────────────────────────────────────
+const METRIC_BARS = [
+  { key: 'RMS_contrast',         label: 'contrast' },
+  { key: 'mirror_symmetry',      label: 'symmetry' },
+  { key: 'balance_score',        label: 'balance' },
+  { key: 'luminance_entropy',    label: 'light entropy' },
+  { key: 'color_entropy_HSV_H',  label: 'color entropy' },
+  { key: 'edge_density',         label: 'edges' },
+];
 
-  document.getElementById('likesFileName').textContent = file.name;
-  const prev = document.getElementById('likesPreview');
-  prev.src = URL.createObjectURL(file);
-  prev.style.display = 'block';
+function buildMetricBars(metrics) {
+  const wrap = document.getElementById('metricBars');
+  wrap.innerHTML = '';
+  METRIC_BARS.forEach(({ key, label }) => {
+    const pct = Math.round(Math.min(1, Math.max(0, metrics[key] || 0)) * 100);
+    const row = document.createElement('div');
+    row.className = 'ig-mrow';
+    row.innerHTML =
+      `<span class="ig-mlabel">${label}</span>` +
+      `<span class="ig-mtrack"><span class="ig-mfill" style="width:${pct}%"></span></span>` +
+      `<span class="ig-mval">${pct}</span>`;
+    wrap.appendChild(row);
+  });
+}
 
+function buildGrowthBars(likes) {
+  const wrap = document.getElementById('growthBars');
+  wrap.innerHTML = '';
+  // Faked 7-day climb easing from ~15% up to the final likes count.
+  const days = 7;
+  const start = 0.15;
+  for (let i = 0; i < days; i++) {
+    const t   = i / (days - 1);
+    const ease = start + (1 - start) * Math.pow(t, 1.7);
+    const val = Math.round(likes * ease);
+    const bar = document.createElement('div');
+    bar.className = 'ig-gbar';
+    bar.style.height = (ease * 100) + '%';
+    bar.title = `day ${i + 1}: ${val.toLocaleString()} likes`;
+    wrap.appendChild(bar);
+  }
+  document.getElementById('growthTotal').textContent = '→ ' + likes.toLocaleString();
+}
+
+function renderPost(res) {
+  const likes = res.fake_likes;
+  document.getElementById('likesNum').textContent    = likes.toLocaleString();
+  document.getElementById('likesRepost').textContent = Math.round(likes * 0.06).toLocaleString();
+  document.getElementById('likesDM').textContent     = Math.round(likes * 0.03).toLocaleString();
+  document.getElementById('likesScore').textContent  = res.visual_score_0_100;
+  document.getElementById('likesMood').textContent   = res.algorithm_mood;
+  document.getElementById('likesMult').textContent   = res.mood_multiplier;
+  buildMetricBars(res._metrics);
+  buildGrowthBars(likes);
+  document.getElementById('igPost').style.display = 'block';
+}
+
+async function scoreAndRenderPost(file, imgSrc) {
   const status = document.getElementById('likesStatus');
+  document.getElementById('likesPreview').src = imgSrc || URL.createObjectURL(file);
+  document.getElementById('likesFileName').textContent = file.name;
   status.textContent = 'scoring…';
-
   try {
     const res = await window.LikesCalculator.calculate(file);
-    document.getElementById('likesNum').textContent   = res.fake_likes.toLocaleString();
-    document.getElementById('likesScore').textContent = res.visual_score_0_100;
-    document.getElementById('likesMood').textContent  = res.algorithm_mood;
-    document.getElementById('likesMult').textContent  = res.mood_multiplier;
-    document.getElementById('likesResult').style.display = 'block';
+    renderPost(res);
     status.textContent = 'scored ✓';
   } catch (err) {
     status.textContent = 'error';
     console.error('[LikesCalculator]', err);
   }
+}
+
+document.getElementById('likesFileInput').addEventListener('change', function () {
+  const file = this.files[0];
+  if (file) scoreAndRenderPost(file);
 });

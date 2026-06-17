@@ -889,43 +889,155 @@ body {
 .gen-file-label:hover { border-color: var(--reg-ink); color: var(--reg-ink); }
 .gen-file-label input { display: none; }
 
-/* Likes calculator result */
-.likes-result {
+/* Likes calculator — Instagram post frame */
+.ig-post {
   margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--reg-line-soft);
+  border: 1px solid var(--reg-line);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
 }
 
-.likes-result-num {
-  font-family: var(--grot);
-  font-weight: 700;
-  font-size: 34px;
-  letter-spacing: -0.02em;
-  color: var(--reg-ink);
-  line-height: 1;
+.ig-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
 }
 
-.likes-result-lab {
+.ig-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: conic-gradient(from 210deg, #feda75, #d62976, #962fbf, #4f5bd5, #feda75);
+  flex: 0 0 auto;
+}
+
+.ig-user {
   font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--reg-soft);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--reg-ink);
+  flex: 1;
 }
 
-.likes-result-meta {
+.ig-more { font-family: var(--mono); color: var(--reg-soft); letter-spacing: 0.05em; }
+
+.ig-media {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: var(--reg-line-soft);
+}
+
+.ig-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.ig-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 4px;
+}
+
+.ig-actions-left { display: flex; align-items: center; gap: 14px; }
+
+.ig-ico { display: inline-flex; cursor: default; }
+.ig-ico svg { width: 24px; height: 24px; }
+.ig-ico svg path { stroke: var(--reg-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.ig-heart svg { fill: #ed4956; }
+.ig-heart svg path { stroke: none; }
+
+.ig-likes {
+  padding: 2px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--reg-ink);
+}
+.ig-likes b { font-weight: 700; }
+
+.ig-caption {
+  padding: 4px 12px 0;
+  font-family: var(--serif);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--reg-ink);
+}
+.ig-caption b { font-family: var(--mono); font-weight: 700; font-size: 12px; }
+
+.ig-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
-  margin-top: 8px;
+  gap: 4px 14px;
+  padding: 8px 12px 10px;
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 9px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--reg-soft);
 }
+.ig-stats b { color: var(--reg-ink); font-weight: 700; }
 
-.likes-result-meta b { color: var(--reg-ink); font-weight: 700; }
+/* Charts */
+.ig-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 10px 12px 14px;
+  border-top: 1px solid var(--reg-line-soft);
+}
+
+@media (max-width: 520px) { .ig-charts { grid-template-columns: 1fr; } }
+
+.ig-chart-title {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+  margin-bottom: 8px;
+}
+.ig-chart-title b { color: var(--reg-ink); font-weight: 700; }
+
+/* Metrics histogram (horizontal bars) */
+.ig-bars.metrics { display: flex; flex-direction: column; gap: 5px; }
+
+.ig-mrow { display: flex; align-items: center; gap: 6px; }
+
+.ig-mlabel {
+  flex: 0 0 64px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+  text-align: right;
+}
+
+.ig-mtrack { flex: 1; height: 7px; background: var(--reg-line-soft); border-radius: 4px; overflow: hidden; }
+.ig-mfill  { display: block; height: 100%; background: var(--terra); border-radius: 4px; }
+
+.ig-mval {
+  flex: 0 0 18px;
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--reg-ink);
+  text-align: right;
+}
+
+/* Projected-growth chart (vertical bars) */
+.ig-bars.growth {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 88px;
+}
+
+.ig-gbar {
+  flex: 1;
+  min-height: 3px;
+  background: linear-gradient(to top, #ed4956, #f7868f);
+  border-radius: 3px 3px 0 0;
+}
 
 .gen-progress-wrap {
   height: 3px;
