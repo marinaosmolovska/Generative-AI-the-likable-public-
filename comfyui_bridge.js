@@ -179,6 +179,22 @@ window.ComfyBridge = {
   },
 
   async generate({ image = null, prompt = '', loraStrength = 1, steps = 20, onProgress } = {}) {
+    // Wait until ComfyUI is fully ready (not just started)
+    for (let i = 0; i < 30; i++) {
+      try {
+        const r = await fetch(`${COMFY}/system_stats`);
+        if (r.ok) break;
+      } catch {}
+      if (i === 29) throw new Error('ComfyUI not ready after 30s — wait for it to fully load then try again');
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    // Clear any stale queued jobs from previous crashes
+    await fetch(`${COMFY}/queue`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clear: true })
+    }).catch(() => {});
+
     const wf = JSON.parse(JSON.stringify(_CANNY_WF)); // deep clone
 
     const blob    = image ?? await _neutralBlob();
