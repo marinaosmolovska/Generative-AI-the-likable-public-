@@ -633,3 +633,30 @@ UNTOUCHED.forEach(({ name, desc, likes }) => {
   `;
   listEl.appendChild(row);
 });
+
+// ── Likes calculator ────────────────────────────────────────────────────────────
+document.getElementById('likesFileInput').addEventListener('change', async function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  document.getElementById('likesFileName').textContent = file.name;
+  const prev = document.getElementById('likesPreview');
+  prev.src = URL.createObjectURL(file);
+  prev.style.display = 'block';
+
+  const status = document.getElementById('likesStatus');
+  status.textContent = 'scoring…';
+
+  try {
+    const res = await window.LikesCalculator.calculate(file);
+    document.getElementById('likesNum').textContent   = res.fake_likes.toLocaleString();
+    document.getElementById('likesScore').textContent = res.visual_score_0_100;
+    document.getElementById('likesMood').textContent  = res.algorithm_mood;
+    document.getElementById('likesMult').textContent  = res.mood_multiplier;
+    document.getElementById('likesResult').style.display = 'block';
+    status.textContent = 'scored ✓';
+  } catch (err) {
+    status.textContent = 'error';
+    console.error('[LikesCalculator]', err);
+  }
+});

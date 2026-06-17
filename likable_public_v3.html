@@ -156,6 +156,24 @@
             <p class="live-readout"><b id="roomsRefitted">0</b> rooms refitted out of 49 · <b id="likesMinted">0</b> likes minted this session</p>
           </section>
 
+          <!-- MOMENT 5 — likes calculator -->
+          <div class="tool" id="toolLikes">
+            <div class="th"><span class="t">Score a generated room</span><span class="v" id="likesStatus">awaiting image</span></div>
+            <div class="tlead">Upload an image you generated — the algorithm scores how likable it is.</div>
+            <label class="gen-file-label">
+              <input type="file" id="likesFileInput" accept="image/*">
+              <span id="likesFileName">click or drop to upload an image</span>
+            </label>
+            <img id="likesPreview" alt="" style="display:none;width:100%;margin-top:8px;border-radius:4px;">
+            <div class="likes-result" id="likesResult" style="display:none;">
+              <div class="likes-result-num"><span id="likesNum">0</span> <span class="likes-result-lab">likes</span></div>
+              <div class="likes-result-meta">
+                <span>visual score <b id="likesScore">0</b>/100</span>
+                <span>algorithm: <b id="likesMood">—</b> ·×<span id="likesMult">1</span></span>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -178,6 +196,7 @@
 </div>
 
 <script src="comfyui_bridge.js"></script>
+<script src="likes_calculator.js"></script>
 <script src="likable_public_v3.js"></script>
 </body>
 </html>

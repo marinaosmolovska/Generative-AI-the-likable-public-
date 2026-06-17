@@ -889,6 +889,44 @@ body {
 .gen-file-label:hover { border-color: var(--reg-ink); color: var(--reg-ink); }
 .gen-file-label input { display: none; }
 
+/* Likes calculator result */
+.likes-result {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--reg-line-soft);
+}
+
+.likes-result-num {
+  font-family: var(--grot);
+  font-weight: 700;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+  color: var(--reg-ink);
+  line-height: 1;
+}
+
+.likes-result-lab {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+}
+
+.likes-result-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--reg-soft);
+}
+
+.likes-result-meta b { color: var(--reg-ink); font-weight: 700; }
+
 .gen-progress-wrap {
   height: 3px;
   background: var(--reg-line-soft);
