@@ -336,8 +336,28 @@ document.getElementById('loraSlider').addEventListener('input', function () {
   lCards.forEach(c => { c.style.opacity = 1 - v * 0.4; });
 });
 
+// ── Trigger word + prompt composition ─────────────────────────────────────────
+const TRIGGER = 'igcflr';
+
+// Guarantee the LoRA trigger word leads the prompt (case-insensitive, no dupes).
+function ensureTrigger(p) {
+  return new RegExp(`^${TRIGGER}\\b`, 'i').test(p) ? p : `${TRIGGER} ${p}`;
+}
+
+// Build the full generation prompt: trigger + building typology + style.
+function composeGenPrompt(styleText) {
+  const building = (document.getElementById('capBuilding').value || '').trim() || 'public waiting room';
+  return `${TRIGGER} Architectural interior photography of a contemporary ${building}, ${styleText}`;
+}
+
 // ── Style picker (populated by JS) ────────────────────────────────────────────
 const capStylesEl = document.getElementById('capStyles');
+let _selectedStyle = null;
+
+function updateGenPrompt() {
+  if (_selectedStyle == null) return;
+  document.getElementById('genPromptText').value = composeGenPrompt(_selectedStyle);
+}
 
 STYLES.forEach(({ name, prompt }) => {
   const btn = document.createElement('span');
@@ -346,13 +366,19 @@ STYLES.forEach(({ name, prompt }) => {
   btn.addEventListener('click', () => {
     const wasActive = btn.classList.contains('used');
     capStylesEl.querySelectorAll('.style-btn').forEach(b => b.classList.remove('used'));
-    if (!wasActive) {
+    if (wasActive) {
+      _selectedStyle = null;
+    } else {
       btn.classList.add('used');
-      document.getElementById('genPromptText').value = prompt;
+      _selectedStyle = prompt;
+      updateGenPrompt();
     }
   });
   capStylesEl.appendChild(btn);
 });
+
+// Recompose when the building typology changes (only if a style is active)
+document.getElementById('capBuilding').addEventListener('input', updateGenPrompt);
 
 // ── Chips (populated by JS) ───────────────────────────────────────────────────
 const capChipsEl = document.getElementById('capChips');
@@ -574,7 +600,7 @@ document.getElementById('genFileInput').addEventListener('change', function () {
 
 // Generate button
 document.getElementById('genBtn').addEventListener('click', () => {
-  const prompt       = document.getElementById('genPromptText').value.trim();
+  const prompt       = ensureTrigger(document.getElementById('genPromptText').value.trim());
   const loraStrength = parseFloat(document.getElementById('loraSlider').value);
   const image        = (_genMode === 'txt2img') ? null : _genFile;
 
